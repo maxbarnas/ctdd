@@ -115,3 +115,37 @@ CTDD (Context Test-Driven Development) is a lightweight framework for guiding LL
 - Zod schemas validate all JSON structures at runtime
 - File paths in plugins are relative to project root
 - Commit IDs follow format: `CTDD:<focus_card_id>@<hash7>`
+- Error handling uses structured E001-E999 error codes with actionable messages
+- Comprehensive test suite with 76 tests (100% coverage on error handling)
+
+## Context Preservation & Resumption
+
+**If context gets condensed/cleared during CTDD work:**
+
+1. **Read resumption files first:**
+   - `.ctdd/session-state.json` - SINGLE SOURCE OF TRUTH for progress, instructions, and implementation state
+   - `CTDD_IMPLEMENTATION_CONTRACT.md` - Full project context
+
+2. **Verify current state using commands from session-state.json:**
+   ```bash
+   # Commands are listed in session-state.json under "verification_commands"
+   npm test                    # Should show 76/76 tests passing
+   npm run test:coverage       # Check coverage status
+   npm run build              # Should complete in ~2 seconds
+   node dist/index.js --help      # Enhanced help with workflows
+   node dist/index.js validate    # Project validation command
+   node dist/index.js status -v   # Verbose status with health
+   ```
+
+3. **Current status (as of 2024-09-28 15:15):**
+   - ✅ Phase 1 & 2 COMPLETED (Testing + Error Handling)
+   - ✅ Phase 4 COMPLETED (High-Impact Developer UX) - ALL AT16-AT20 delivered
+   - ⏭️ Phase 3 DEPRIORITIZED (Plugin complexity)
+   - 🤔 Phase 5 NEXT CONSIDERATION (Type Safety vs more UX features)
+
+4. **Key insight:** **High-impact UX improvements have massive value** - Phase 4 validated this approach
+
+**CRITICAL: Always check `.ctdd/session-state.json` for the most recent progress before starting new work.**
+
+**IMPORTANT: When significant work is completed, you MUST update:**
+- `.ctdd/session-state.json` - SINGLE SOURCE OF TRUTH with detailed progress, insights, completion status, and resumption instructions
