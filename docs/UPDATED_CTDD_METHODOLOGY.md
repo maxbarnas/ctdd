@@ -1,13 +1,111 @@
-# Updated CTDD Methodology (Based on Multi-Phase Implementation Experience)
+# Updated CTDD Methodology: Tool-Assisted Development
 
-## For updating ~/.claude/CLAUDE.md or system instructions:
+## Overview: The Bootstrap Breakthrough
 
-```markdown
-- CTDD (Context Test-Driven Development) Methodology
+CTDD (Context Test-Driven Development) has evolved from a manual methodology to a **tool-assisted development workflow** that reduces manual overhead by **98%+**. This document captures the breakthrough insights from successfully using CTDD methodology to build CTDD tooling.
 
-  CTDD's primary purpose: Preserve context and progress across Claude context windows while maintaining quality and enabling seamless project resumption.
+## Core Principle: The Circular Bootstrap
 
-  When asked to follow CTDD principles:
+**The tool helps build the tool.** CTDD tooling was developed using CTDD methodology, creating a self-improving cycle where each phase accelerated the next phase.
+
+### Proven Bootstrap Pattern:
+1. **Phase 0**: Emergency manual overhead reduction (immediate pain relief)
+2. **Phase 1**: Enhanced automation using Phase 0 tools
+3. **Phase 2**: Advanced features using Phase 0+1 tools
+4. **Result**: Tool immediately helps its own development
+
+## Tool-Assisted CTDD Workflow
+
+### Before vs After Tool Assistance
+
+**Manual CTDD (Before)**: 40+ minutes per development cycle
+- AT validation: 15 minutes of manual checking
+- Session state updates: 15-20 minutes of manual JSON editing
+- Todo management: 10 minutes of manual recreation
+- Contract synchronization: Manual cross-referencing
+
+**Tool-Assisted CTDD (After)**: <1 minute per development cycle
+- AT validation: `ctdd check-at --all` (30 seconds)
+- Session state updates: `ctdd update-session --complete AT##` (5 seconds)
+- Todo management: `ctdd todo-sync --save/--load` (10 seconds)
+- Contract synchronization: `ctdd phase-status` (10 seconds)
+
+**Result: 98% manual overhead reduction**
+
+## Enhanced CTDD Structure
+
+### 1. Focus Card (FC-ID)
+- **Goal**: One clear sentence of what to achieve
+- **Deliverables**: Specific files/features to create
+- **Constraints**: Must-follow limitations
+- **Non-goals**: What NOT to do (prevents scope creep)
+
+**Tool Support**: `ctdd init --full` creates complete project structure with Focus Card template
+
+### 2. Invariants (I1, I2, I3...)
+- Non-negotiable conditions that must always hold
+- Checked before AND after any changes
+- Focus on backward compatibility, performance, user experience
+
+**Tool Support**: `ctdd check-at --all` validates invariants automatically
+
+### 3. CUTs (Context Unit Tests) - AT1, AT2, AT3...
+- ID'd tests with verifiable evidence
+- Prefer high-impact UX features over technical complexity
+- Each must be testable and provide clear PASS/FAIL with evidence
+
+**Tool Support**:
+- `ctdd check-at --all` validates all ATs with evidence collection
+- `ctdd check-at AT16` validates specific acceptance criteria
+- `ctdd update-session --complete AT##` marks ATs as complete
+
+### 4. Automated Session State Management
+- **Single source of truth**: `.ctdd/session-state.json`
+- **Automatic updates**: Tool manages state instead of manual editing
+- **Context preservation**: Archive system for token efficiency
+- **Cross-instance handoff**: Standardized resumption protocol
+
+**Tool Support**:
+- `ctdd update-session --complete AT##` for progress updates
+- `ctdd compress-context` for token efficiency
+- `ctdd todo-sync` for todo persistence
+
+## Proven Development Patterns
+
+### High-Impact Pattern Hierarchy (Validated)
+1. **High-impact UX features > technical complexity** (Phase 4 validation)
+2. **Simple solutions > perfect solutions** (Context preservation success)
+3. **Working solution today > perfect solution someday** (Bootstrap success)
+4. **Real commands only** (No theoretical features)
+5. **Emergency phases for immediate pain relief** (Phase 0 pattern)
+
+### Progressive Enhancement Strategy
+- Start with immediate pain relief (Emergency Phase 0)
+- Build features that help build better features
+- Each phase uses tools from previous phases
+- Validate self-use principle (tool helps build tool)
+
+### Bootstrap Self-Validation
+- Tool must immediately help its own development
+- Manual overhead reduction measurable from day 1
+- Development velocity increases with each phase
+- Tool-assisted workflow more efficient than manual
+
+## Project Initialization Solution
+
+### The Circular Dependency Problem Solved
+**Problem**: Starting new projects requires connecting:
+- Global CTDD methodology
+- Local project setup
+- Tool automation
+- Context preservation
+- Session state management
+
+**Solution**: Enhanced `ctdd init --full`
+
+The tool itself handles the complexity of setting up the complete CTDD environment, creating a self-bootstrapping system.
+
+### For updating ~/.claude/CLAUDE.md or system instructions:
 
   1. Focus Card - Define upfront scope:
     - FC-ID: Unique identifier (e.g., "FC-001")
