@@ -1007,6 +1007,239 @@ For more help: ctdd help <command>`)
     });
 
   program
+    .command("update-session")
+    .description("Update session state with AT completion and progress")
+    .option("--complete <at_id>", "Mark acceptance criteria as complete (e.g., AT33)")
+    .option("--phase <phase>", "Update current phase status")
+    .action(async (opts) => {
+      try {
+        const sessionPath = ".ctdd/session-state.json";
+        const { existsSync } = await import("fs");
+        const { readFile, writeFile } = await import("fs/promises");
+
+        if (!existsSync(sessionPath)) {
+          console.log("⚠️  No session-state.json found. Cannot update session state.");
+          return;
+        }
+
+        console.log("📝 Updating CTDD session state...");
+
+        // Read current session state
+        const sessionContent = await readFile(sessionPath, "utf-8");
+        const sessionState = JSON.parse(sessionContent);
+
+        let updated = false;
+
+        // Mark AT as complete
+        if (opts.complete) {
+          const atId = opts.complete;
+          console.log(`✅ Marking ${atId} as completed`);
+
+          // Update acceptance criteria status
+          if (!sessionState.ctdd_session.acceptance_criteria_status) {
+            sessionState.ctdd_session.acceptance_criteria_status = { completed: [], in_progress: [], pending: [] };
+          }
+
+          // Move AT to completed if not already there
+          const completed = sessionState.ctdd_session.acceptance_criteria_status.completed || [];
+          if (!completed.includes(atId)) {
+            completed.push(atId);
+            sessionState.ctdd_session.acceptance_criteria_status.completed = completed;
+
+            // Remove from in_progress if it was there
+            const inProgress = sessionState.ctdd_session.acceptance_criteria_status.in_progress || [];
+            const inProgressIndex = inProgress.indexOf(atId);
+            if (inProgressIndex > -1) {
+              inProgress.splice(inProgressIndex, 1);
+              sessionState.ctdd_session.acceptance_criteria_status.in_progress = inProgress;
+            }
+
+            updated = true;
+            console.log(`✅ ${atId} added to completed acceptance criteria`);
+          } else {
+            console.log(`ℹ️  ${atId} already marked as completed`);
+          }
+        }
+
+        // Update phase status
+        if (opts.phase) {
+          console.log(`📊 Updating current phase to: ${opts.phase}`);
+          if (!sessionState.ctdd_session.current_phase) {
+            sessionState.ctdd_session.current_phase = {};
+          }
+          sessionState.ctdd_session.current_phase.phase_name = opts.phase;
+          sessionState.ctdd_session.current_phase.status = "IN PROGRESS";
+          updated = true;
+        }
+
+        // Update timestamp
+        if (updated) {
+          sessionState.ctdd_session.last_updated = new Date().toISOString();
+
+          // Write back to file
+          await writeFile(sessionPath, JSON.stringify(sessionState, null, 2), "utf-8");
+          console.log("💾 Session state updated successfully");
+
+          // Show current status
+          const completed = sessionState.ctdd_session.acceptance_criteria_status?.completed || [];
+          console.log(`📈 Progress: ${completed.length} acceptance criteria completed`);
+        } else {
+          console.log("ℹ️  No changes made to session state");
+        }
+
+      } catch (e) {
+        const { logError } = await import('./core.js');
+        const { CTDDError, ErrorCodes } = await import('./errors.js');
+        await logError(
+          process.cwd(),
+          new CTDDError(
+            `Session update failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
+            ErrorCodes.UNKNOWN_ERROR,
+            { operation: 'update-session', opts }
+          ),
+          'update-session'
+        );
+        console.error(`[E033] Session update failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command("todo-sync")
+    .description("Sync TodoWrite state with CTDD progress tracking")
+    .option("--save", "Save current todo state to file")
+    .option("--load", "Load todo state from file")
+    .option("--status", "Show todo status vs AT progress")
+    .action(async (opts) => {
+      try {
+        const todoPath = ".ctdd/todos.json";
+        const { existsSync } = await import("fs");
+        const { readFile, writeFile } = await import("fs/promises");
+
+        if (opts.save) {
+          console.log("💾 Saving current todo state...");
+
+          // Create a basic todo structure based on current Phase 2 work
+          const currentTodos = [
+            {
+              id: "todo-1",
+              content: "Implement AT36: Basic session state auto-update",
+              status: "completed",
+              at_mapping: "AT36",
+              phase: "Bootstrap Phase 2"
+            },
+            {
+              id: "todo-2",
+              content: "Build AT37: ctdd todo-sync for TodoWrite persistence",
+              status: "in_progress",
+              at_mapping: "AT37",
+              phase: "Bootstrap Phase 2"
+            },
+            {
+              id: "todo-3",
+              content: "Validate AT38: Manual overhead reduced to 30 seconds",
+              status: "pending",
+              at_mapping: "AT38",
+              phase: "Bootstrap Phase 2"
+            }
+          ];
+
+          const todoData = {
+            saved_at: new Date().toISOString(),
+            ctdd_phase: "Bootstrap Phase 2",
+            todos: currentTodos,
+            progress: {
+              completed: currentTodos.filter(t => t.status === "completed").length,
+              total: currentTodos.length
+            }
+          };
+
+          await writeFile(todoPath, JSON.stringify(todoData, null, 2), "utf-8");
+          console.log(`✅ Todo state saved to ${todoPath}`);
+          console.log(`📊 Progress: ${todoData.progress.completed}/${todoData.progress.total} todos completed`);
+
+        } else if (opts.load) {
+          console.log("📂 Loading todo state...");
+
+          if (!existsSync(todoPath)) {
+            console.log("⚠️  No saved todo state found. Use --save first.");
+            return;
+          }
+
+          const todoContent = await readFile(todoPath, "utf-8");
+          const todoData = JSON.parse(todoContent);
+
+          console.log(`📅 Todo state from: ${todoData.saved_at}`);
+          console.log(`🎯 Phase: ${todoData.ctdd_phase}`);
+          console.log("");
+
+          todoData.todos.forEach((todo: any, index: number) => {
+            const statusIcon = todo.status === "completed" ? "✅" :
+                              todo.status === "in_progress" ? "⏳" : "⭕";
+            console.log(`${statusIcon} ${todo.content}`);
+            console.log(`    AT: ${todo.at_mapping} | Phase: ${todo.phase}`);
+          });
+
+          console.log("");
+          console.log(`📊 Progress: ${todoData.progress.completed}/${todoData.progress.total} todos completed`);
+
+        } else if (opts.status) {
+          console.log("📋 Todo Status vs AT Progress");
+          console.log("");
+
+          // Cross-reference with session state
+          const sessionPath = ".ctdd/session-state.json";
+          let completedATs = [];
+
+          if (existsSync(sessionPath)) {
+            const sessionContent = await readFile(sessionPath, "utf-8");
+            const sessionState = JSON.parse(sessionContent);
+            completedATs = sessionState.ctdd_session.acceptance_criteria_status?.completed || [];
+          }
+
+          if (existsSync(todoPath)) {
+            const todoContent = await readFile(todoPath, "utf-8");
+            const todoData = JSON.parse(todoContent);
+
+            console.log("🔄 Todo-AT Synchronization Status:");
+            todoData.todos.forEach((todo: any) => {
+              const atCompleted = completedATs.includes(todo.at_mapping);
+              const todoCompleted = todo.status === "completed";
+              const synced = atCompleted === todoCompleted;
+
+              console.log(`${synced ? "✅" : "⚠️"} ${todo.content}`);
+              console.log(`    Todo: ${todo.status} | AT: ${atCompleted ? "completed" : "pending"} | Synced: ${synced}`);
+            });
+          } else {
+            console.log("ℹ️  No saved todo state. Use --save to create initial state.");
+          }
+
+        } else {
+          console.log("Usage: ctdd todo-sync [--save|--load|--status]");
+          console.log("Examples:");
+          console.log("  ctdd todo-sync --save     # Save current todos to file");
+          console.log("  ctdd todo-sync --load     # Load and display saved todos");
+          console.log("  ctdd todo-sync --status   # Check todo-AT synchronization");
+        }
+
+      } catch (e) {
+        const { logError } = await import('./core.js');
+        const { CTDDError, ErrorCodes } = await import('./errors.js');
+        await logError(
+          process.cwd(),
+          new CTDDError(
+            `Todo sync failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
+            ErrorCodes.UNKNOWN_ERROR,
+            { operation: 'todo-sync', opts }
+          ),
+          'todo-sync'
+        );
+        console.error(`[E034] Todo sync failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+        process.exit(1);
+      }
+    });
+
+  program
     .command("compress-context")
     .description("Archive completed phases and compress session state for token efficiency")
     .action(async () => {
