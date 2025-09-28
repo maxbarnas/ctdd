@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2025-09-28T17:17:30.318Z",
+    "error": {
+      "name": "CTDDError",
+      "message": "Project initialization failed: Spec already exists. Aborting init.",
+      "code": "E999",
+      "context": {
+        "operation": "init",
+        "opts": {
+          "full": true
+        }
+      },
+      "stack": "CTDDError: Project initialization failed: Spec already exists. Aborting init.\n    at Command.<anonymous> (file:///C:/Users/mrb/Desktop/ctdd/dist/index.js:93:43)\n    at async Command.parseAsync (C:\\Users\\mrb\\Desktop\\ctdd\\node_modules\\commander\\lib\\command.js:936:5)\n    at async main (file:///C:/Users/mrb/Desktop/ctdd/dist/index.js:1260:5)"
+    },
+    "operation": "init"
+  }
+]

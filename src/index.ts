@@ -12,6 +12,8 @@ import {
   renderAgentBriefJson,
   recordEvent,
   applyDeltaObject,
+  loadMarkdownTemplate,
+  loadJsonTemplate,
   PreResponseSchema,
   PostResponseSchema,
   PluginInfoForBrief,
@@ -81,130 +83,17 @@ For more help: ctdd help <command>`)
             await mkdir("docs", { recursive: true });
           }
 
-          // Generate CLAUDE.md with current best practices
-          const claudeMdContent = `# CLAUDE.md
-
-This file provides guidance to Claude Code when working with this CTDD project.
-
-## CTDD Tool-Assisted Development Workflow
-
-This project uses CTDD (Context Test-Driven Development) with tool assistance for maximum efficiency.
-
-### Quick Start Commands
-
-\`\`\`bash
-# System health check (30 seconds vs 15 minutes manual)
-ctdd check-at --all
-
-# Project progress dashboard
-ctdd phase-status
-
-# Update session state (5 seconds vs 15 minutes manual)
-ctdd update-session --complete AT##
-
-# Todo synchronization
-ctdd todo-sync --save    # Persist current todos
-ctdd todo-sync --load    # Restore todos
-ctdd todo-sync --status  # Check todo-AT sync
-
-# Context compression when needed
-ctdd compress-context
-\`\`\`
-
-### CTDD Development Process
-
-1. **Focus Card Definition**: Clear goal, deliverables, constraints, non-goals
-2. **Invariants**: Non-negotiable conditions that must always hold
-3. **CUTs**: Acceptance criteria with testable evidence
-4. **Tool-Assisted Implementation**: Use ctdd commands to reduce manual overhead
-5. **Contract Archival**: Move completed contracts to contracts/archive/
-
-### Contract Management
-
-**Automatic Contract Archival**: When completing CTDD contracts, move them to contracts/archive/:
-
-\`\`\`bash
-# After completing all acceptance criteria:
-ctdd check-at --all                      # Verify completion
-mv contracts/COMPLETED_CONTRACT.md contracts/archive/
-git commit -m "feat: Complete contract"  # Commit with completion
-\`\`\`
-
-**Organization**:
-- **Active contracts**: Keep in contracts/ (work in progress)
-- **Completed contracts**: Move to contracts/archive/ (historical reference)
-- **Benefits**: Clean workspace, clear progress tracking, easy reference
-
-### Proven Patterns (From Bootstrap Success)
-
-- **High-impact UX features > technical complexity** (Phase 4 validation)
-- **Simple solutions > perfect solutions** (Context preservation success)
-- **Tool helps build tool** (Bootstrap principle)
-- **Emergency phases for immediate pain relief** (Phase 0 pattern)
-- **Real commands only** (No theoretical features)
-
-### Manual Overhead Reduction
-
-**Before CTDD tools**: 40+ minutes per development cycle
-**After CTDD tools**: <1 minute per development cycle (98% reduction)
-
-### Context Preservation
-
-- Session state automatically managed via ctdd commands
-- Use \`ctdd compress-context\` when session-state.json > 100 lines
-- Archive system preserves full context while keeping active context lean
-
-### Error Handling
-
-All errors use E001-E999 codes with actionable suggestions.
-Error logging automatically captured to .ctdd/logs/errors.json.
-
-### Bootstrap Insights
-
-The tool development followed CTDD methodology to build CTDD tooling:
-- Phase 0: Emergency manual overhead reduction
-- Phase 1: Enhanced AT validation automation
-- Phase 2: Session state automation
-- Each phase used tools from previous phases (bootstrap principle)
-
-**Result**: Tool immediately helps its own development and scales to other projects.
-`;
-
+          // Generate CLAUDE.md with current best practices from template
+          const claudeMdContent = await loadMarkdownTemplate('claude-md-template');
           await writeFile("CLAUDE.md", claudeMdContent, "utf-8");
           console.log("✅ Created CLAUDE.md with bootstrap insights");
 
-          // Create session state template
-          const sessionStateTemplate = {
-            "ctdd_session": {
-              "session_id": `new-project-${new Date().toISOString().split('T')[0]}`,
-              "last_updated": new Date().toISOString(),
-              "contract_commit": "CTDD:NEW-PROJECT@v1",
-              "claude_instance": "Sonnet 4",
-              "current_status": {
-                "project_state": "INITIALIZING",
-                "current_focus": "Project setup and initial contract definition"
-              },
-              "quick_resumption_context": {
-                "what_works": "CTDD tool-assisted development workflow proven",
-                "proven_approach": "High-impact UX improvements > technical complexity",
-                "ready_for_use": "Tool reduces manual overhead by 98%+"
-              },
-              "verification_commands": [
-                "ctdd check-at --all         # Validate acceptance criteria",
-                "ctdd phase-status          # Check project progress",
-                "ctdd todo-sync --status    # Verify todo synchronization"
-              ],
-              "critical_for_resumption": {
-                "methodology": "Use tool-assisted CTDD development workflow",
-                "manual_overhead": "Reduced to <1 minute per cycle with ctdd commands"
-              },
-              "acceptance_criteria_status": {
-                "completed": [],
-                "in_progress": [],
-                "pending": []
-              }
-            }
+          // Create session state template with dynamic values
+          const templateVariables = {
+            DATE: new Date().toISOString().split('T')[0],
+            TIMESTAMP: new Date().toISOString()
           };
+          const sessionStateTemplate = await loadJsonTemplate('session-state-template', templateVariables);
 
           await writeFile(".ctdd/session-state.json", JSON.stringify(sessionStateTemplate, null, 2), "utf-8");
           console.log("✅ Created session-state.json template");

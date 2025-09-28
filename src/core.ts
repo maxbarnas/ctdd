@@ -748,7 +748,7 @@ function getToolTemplatesDir(): string {
  */
 export async function loadTemplate(templateName: string = 'generic-project', projectRoot?: string): Promise<Spec> {
   const templatesDir = getToolTemplatesDir();
-  const templatePath = path.join(templatesDir, `${templateName}.json`);
+  const templatePath = path.join(templatesDir, 'specs', `${templateName}.json`);
 
   try {
     // AT75: Tool prefers tool-directory templates over project templates
@@ -785,7 +785,7 @@ export async function loadTemplate(templateName: string = 'generic-project', pro
     }
 
     // If requested template doesn't exist, try minimal fallback
-    const minimalPath = path.join(templatesDir, 'minimal.json');
+    const minimalPath = path.join(templatesDir, 'specs', 'minimal.json');
     if (templateName !== 'minimal' && await exists(minimalPath)) {
       const minimalContent = await fsReadFile(minimalPath, 'utf-8');
       const minimal = JSON.parse(minimalContent);
@@ -801,6 +801,63 @@ export async function loadTemplate(templateName: string = 'generic-project', pro
   } catch (error) {
     // Re-throw to let initProject handle the fallback
     throw error;
+  }
+}
+
+/**
+ * Substitute template variables in content
+ * @param content Template content with {{VARIABLE}} placeholders
+ * @param variables Object with variable values
+ * @returns Content with variables substituted
+ */
+function substituteTemplateVariables(content: string, variables: Record<string, string>): string {
+  let result = content;
+  for (const [key, value] of Object.entries(variables)) {
+    const placeholder = `{{${key}}}`;
+    result = result.replace(new RegExp(placeholder, 'g'), value);
+  }
+  return result;
+}
+
+/**
+ * Load a markdown template from the tool's templates directory
+ * @param templateName Name of the template (without .md extension)
+ * @param variables Optional variables for substitution
+ * @returns Template content with variables substituted
+ */
+export async function loadMarkdownTemplate(templateName: string, variables: Record<string, string> = {}): Promise<string> {
+  const templatesDir = getToolTemplatesDir();
+  const templatePath = path.join(templatesDir, `${templateName}.md`);
+
+  if (!(await exists(templatePath))) {
+    throw new Error(`Markdown template '${templateName}' not found in ${templatesDir}`);
+  }
+
+  const templateContent = await fsReadFile(templatePath, 'utf-8');
+  return substituteTemplateVariables(templateContent, variables);
+}
+
+/**
+ * Load a JSON template from the tool's templates directory
+ * @param templateName Name of the template (without .json extension)
+ * @param variables Optional variables for substitution
+ * @returns Parsed JSON object with variables substituted
+ */
+export async function loadJsonTemplate(templateName: string, variables: Record<string, string> = {}): Promise<any> {
+  const templatesDir = getToolTemplatesDir();
+  const templatePath = path.join(templatesDir, `${templateName}.json`);
+
+  if (!(await exists(templatePath))) {
+    throw new Error(`JSON template '${templateName}' not found in ${templatesDir}`);
+  }
+
+  const templateContent = await fsReadFile(templatePath, 'utf-8');
+  const substitutedContent = substituteTemplateVariables(templateContent, variables);
+
+  try {
+    return JSON.parse(substitutedContent);
+  } catch (error) {
+    throw new Error(`Failed to parse JSON template '${templateName}': ${error instanceof Error ? error.message : 'Parse error'}`);
   }
 }
 
