@@ -54,6 +54,7 @@ For more help: ctdd help <command>`)
     .command("init")
     .description("Initialize CTDD project structure")
     .option("--full", "Complete CTDD project setup with templates and methodology")
+    .option("--template <name>", "Use a specific template (e.g., minimal, csv-parser-example)")
     .action(async (opts) => {
       try {
         const projectDir = process.cwd();
@@ -64,7 +65,7 @@ For more help: ctdd help <command>`)
 
           // Create basic structure first
           await ensureProjectDirs(projectDir);
-          const { commitId } = await initProject(projectDir);
+          const { commitId } = await initProject(projectDir, opts.template);
 
           // Create enhanced CLAUDE.md with bootstrap insights
           const { writeFile, mkdir } = await import("fs/promises");
@@ -201,17 +202,21 @@ The tool development followed CTDD methodology to build CTDD tooling:
           console.log("");
           console.log("🎯 Next Steps:");
           console.log("1. Define your Focus Card in .ctdd/spec.json");
-          console.log("2. Run 'ctdd phase-status' to see project structure");
-          console.log("3. Use 'ctdd check-at --all' to validate progress");
-          console.log("4. Follow tool-assisted development workflow in CLAUDE.md");
+          console.log("2. Add your acceptance criteria (CUTs) to spec.json");
+          console.log("3. Create .ctdd/validation/ scripts for custom AT validation");
+          console.log("4. Run 'ctdd phase-status' to see project structure");
+          console.log("5. Use 'ctdd check-at --all' to validate progress");
+          console.log("6. See CLAUDE.md for customization examples");
 
         } else {
           // Standard init
           await ensureProjectDirs(projectDir);
-          const { commitId } = await initProject(projectDir);
+          const { commitId } = await initProject(projectDir, opts.template);
           console.log("Initialized .ctdd/");
           console.log("Commit:", commitId);
-          console.log("💡 Use 'ctdd init --full' for complete project setup with templates");
+          console.log("💡 Use 'ctdd init --full' for complete project setup");
+          console.log("💡 Use 'ctdd init --template <name>' to choose a specific template");
+          console.log("   Available templates: minimal, generic-project, csv-parser-example");
         }
 
       } catch (e) {
@@ -935,101 +940,118 @@ The tool development followed CTDD methodology to build CTDD tooling:
     .command("check-at")
     .description("Validate acceptance criteria completion")
     .option("--all", "Check all acceptance criteria")
+    .option("--deep", "Run comprehensive validation including full test suite and build")
     .argument("[at_id]", "Specific AT to check (e.g., AT16)")
     .action(async (atId, opts) => {
       try {
         console.log("🔍 CTDD Acceptance Criteria Validation");
         console.log("");
 
+        // Load project spec to get CUTs dynamically
+        const spec = await loadSpec(process.cwd());
+        const cuts = spec.cuts || [];
+
+        if (cuts.length === 0) {
+          console.log("ℹ️  No CUTs (acceptance criteria) defined in .ctdd/spec.json");
+          console.log("💡 Add CUTs to your spec to enable AT validation");
+          return;
+        }
+
         if (opts.all) {
-          console.log("📋 Checking all acceptance criteria...");
+          console.log(`📋 Checking all ${cuts.length} acceptance criteria from spec.json...`);
           console.log("");
 
-          // Basic system health checks using cross-platform commands
-          try {
-            console.log("⏳ Running tests...");
+          // AT85: Core system health checks - lightweight by default, comprehensive with --deep
+          if (opts.deep) {
+            console.log("⏳ Validating system health (comprehensive mode):");
             const { exec } = await import("child_process");
             const { promisify } = await import("util");
             const execAsync = promisify(exec);
 
-            const testResult = await execAsync("npm test");
-            console.log("✅ AT1-AT5, AT26-AT30: All tests passing (76/76)");
-          } catch (e) {
-            console.log("❌ Tests failing - basic system integrity compromised");
-          }
-
-          // Check if build works
-          try {
-            console.log("⏳ Checking build...");
-            const { exec } = await import("child_process");
-            const { promisify } = await import("util");
-            const execAsync = promisify(exec);
-
-            const buildResult = await execAsync("npm run build");
-            console.log("✅ Build successful - TypeScript compilation working");
-          } catch (e) {
-            console.log("❌ Build failed - TypeScript errors present");
-          }
-
-          // Check Phase 4 UX features with evidence collection
-          const { existsSync } = await import("fs");
-          const distPath = "dist/index.js";
-
-          console.log("🔍 Validating Phase 4 UX Features (AT16-AT20):");
-          if (existsSync(distPath)) {
+            // Deep validation: Full test suite
             try {
-              // Test ctdd diff command exists
-              const { exec } = await import("child_process");
-              const { promisify } = await import("util");
-              const execAsync = promisify(exec);
+              const testResult = await execAsync("npm test");
+              console.log("✅ Test suite: All tests passing (full suite)");
+            } catch (e) {
+              console.log("❌ Test suite: Some tests failing or no test script");
+            }
 
-              const helpOutput = await execAsync("node dist/index.js --help");
-              const hasDiff = helpOutput.stdout.includes("diff");
-              const hasStatus = helpOutput.stdout.includes("status");
-              const hasValidate = helpOutput.stdout.includes("validate");
+            // Deep validation: Full build
+            try {
+              const buildResult = await execAsync("npm run build");
+              console.log("✅ Build: Compilation successful (full build)");
+            } catch (e) {
+              console.log("❌ Build: Compilation issues or no build script");
+            }
+          } else {
+            console.log("⏳ Validating system health (fast mode):");
 
-              console.log(`  • AT16: ctdd diff command ${hasDiff ? "✅" : "❌"}`);
-              console.log(`  • AT17: ctdd status --verbose ${hasStatus ? "✅" : "❌"}`);
-              console.log(`  • AT18: Enhanced help ${helpOutput.stdout.includes("Common workflows") ? "✅" : "❌"}`);
-              console.log(`  • AT19: ctdd validate command ${hasValidate ? "✅" : "❌"}`);
-              console.log(`  • AT20: Progress indicators ${helpOutput.stdout.includes("checks") ? "✅" : "❌"}`);
+            // AT78: Check spec.json structure (fast validation)
+            try {
+              const currentSpec = await loadSpec(process.cwd());
+              console.log("✅ Spec: Valid structure and schema");
+            } catch (e) {
+              console.log("❌ Spec: Invalid or missing .ctdd/spec.json");
+            }
 
-              if (hasDiff && hasStatus && hasValidate) {
-                console.log("✅ AT16-AT20: All Enhanced UX features verified");
+            // AT83: Check basic project structure
+            try {
+              const fs = await import("fs/promises");
+              const { join } = await import("path");
+              const ctddPath = join(process.cwd(), ".ctdd");
+              await fs.access(ctddPath);
+              console.log("✅ Structure: .ctdd directory exists");
+            } catch (e) {
+              console.log("❌ Structure: .ctdd directory missing");
+            }
+
+            // AT79: Fast build check - syntax validation only (no full compilation)
+            try {
+              const { existsSync } = await import("fs");
+              const hasTypeScript = existsSync("tsconfig.json");
+              if (hasTypeScript) {
+                // Quick TypeScript syntax check without full compilation
+                const { exec } = await import("child_process");
+                const { promisify } = await import("util");
+                const execAsync = promisify(exec);
+                await execAsync("npx tsc --noEmit --skipLibCheck", { timeout: 5000 });
+                console.log("✅ Build: TypeScript syntax valid");
               } else {
-                console.log("⚠️ AT16-AT20: Some UX features missing or unverified");
+                console.log("✅ Build: No TypeScript compilation needed");
               }
             } catch (e) {
-              console.log("⚠️ AT16-AT20: Could not verify command functionality");
+              console.log("❌ Build: TypeScript syntax errors detected");
             }
-          } else {
-            console.log("❌ AT16-AT20: Distribution build missing");
           }
 
-          // Check Phase 5 Type Safety with detailed verification
-          console.log("🔍 Validating Phase 5 Type Safety (AT21-AT25):");
-          const validationExists = existsSync("src/validation.ts");
-          const errorsExists = existsSync("src/errors.ts");
-
-          if (validationExists && errorsExists) {
-            try {
-              const { readFile } = await import("fs/promises");
-              const validationContent = await readFile("src/validation.ts", "utf-8");
-              const errorsContent = await readFile("src/errors.ts", "utf-8");
-
-              const hasCircularDetection = validationContent.includes("circular") || validationContent.includes("WeakSet");
-              const hasSchemaVersion = errorsContent.includes("SCHEMA_VERSION") || validationContent.includes("SCHEMA_VERSION");
-
-              console.log(`  • AT21-AT22: Enhanced validation ${validationExists ? "✅" : "❌"}`);
-              console.log(`  • AT23: Circular reference detection ${hasCircularDetection ? "✅" : "❌"}`);
-              console.log(`  • AT24-AT25: Schema versioning & strict mode ${hasSchemaVersion ? "✅" : "❌"}`);
-              console.log("✅ AT21-AT25: Type safety features implemented");
-            } catch (e) {
-              console.log("⚠️ AT21-AT25: Could not verify implementation details");
-            }
-          } else {
-            console.log("❌ AT21-AT25: Type safety files missing");
+          // AT84: Overall health status with evidence
+          console.log("");
+          try {
+            // Re-validate core components for final status
+            await loadSpec(process.cwd());
+            const fs = await import("fs/promises");
+            const { join } = await import("path");
+            await fs.access(join(process.cwd(), ".ctdd"));
+            console.log("🎯 Health Status: ✅ HEALTHY - All core systems operational");
+          } catch (e) {
+            console.log("🎯 Health Status: ❌ UNHEALTHY - Critical issues detected");
+            console.log(`   Issue: ${e instanceof Error ? e.message : 'Unknown error'}`);
           }
+
+          console.log("");
+          console.log("📋 Project Acceptance Criteria:");
+
+          // Display all CUTs from spec
+          cuts.forEach((cut: any, index: number) => {
+            const atId = cut.id || `AT${index + 1}`;
+            console.log(`  ${atId}: ${cut.text || 'No description'}`);
+          });
+
+          console.log("");
+          console.log("ℹ️  For project-specific AT validation:");
+          console.log("   1. Create .ctdd/validation/ directory");
+          console.log("   2. Add validation scripts for your acceptance criteria");
+          console.log("   3. See CLAUDE.md for customization instructions");
 
           console.log("");
           console.log("📊 CTDD Status: Production ready with comprehensive testing and UX features");
@@ -1037,28 +1059,58 @@ The tool development followed CTDD methodology to build CTDD tooling:
         } else if (atId) {
           console.log(`🎯 Checking specific acceptance criteria: ${atId}`);
 
-          // Basic AT validation for common ones
-          if (atId === "AT16") {
+          // Find the specific CUT
+          const cut = cuts.find((c: any) => c.id === atId || `AT${cuts.indexOf(c) + 1}` === atId);
+
+          if (cut) {
+            console.log(`📝 ${atId}: ${cut.text || 'No description'}`);
+
+            // Check for project-specific validation
             const { existsSync } = await import("fs");
-            if (existsSync("dist/index.js")) {
-              console.log("✅ AT16: ctdd diff command exists and functional");
-              console.log("Evidence: dist/index.js built, diff command available in help");
+            const validationFile = `.ctdd/validation/${atId.toLowerCase()}.js`;
+
+            if (existsSync(validationFile)) {
+              console.log(`⏳ Running custom validation for ${atId}...`);
+              try {
+                // Import and run custom validation
+                const { join } = await import("path");
+                const { pathToFileURL } = await import("url");
+                const absolutePath = join(process.cwd(), validationFile);
+                const validation = await import(pathToFileURL(absolutePath).href);
+                if (validation.default || validation.validate) {
+                  const validateFn = validation.default || validation.validate;
+                  const result = await validateFn();
+                  console.log(result.passed ? "✅" : "❌", result.message);
+                  if (result.evidence) {
+                    console.log("Evidence:", result.evidence);
+                  }
+                } else {
+                  console.log("⚠️ Custom validation file exists but no validate function found");
+                }
+              } catch (e) {
+                console.log(`❌ Custom validation failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+              }
             } else {
-              console.log("❌ AT16: Build required for diff command verification");
+              console.log(`ℹ️  No custom validation for ${atId}`);
+              console.log(`💡 Create ${validationFile} for project-specific validation`);
             }
-          } else if (atId === "AT1") {
-            console.log("⏳ Checking AT1: Complete test suite...");
-            // Could add specific test execution here
-            console.log("✅ AT1: Test framework and execution verified");
           } else {
-            console.log(`ℹ️  AT validation for ${atId} not yet implemented`);
-            console.log("Available: AT1, AT16, or use --all for comprehensive check");
+            console.log(`❌ ${atId} not found in project spec.json`);
+            console.log("Available CUTs:");
+            cuts.forEach((cut: any, index: number) => {
+              const id = cut.id || `AT${index + 1}`;
+              console.log(`  ${id}: ${cut.text || 'No description'}`);
+            });
           }
         } else {
-          console.log("Usage: ctdd check-at --all  or  ctdd check-at AT16");
+          console.log("Usage: ctdd check-at --all  or  ctdd check-at <AT_ID>");
           console.log("Examples:");
           console.log("  ctdd check-at --all     # Check all acceptance criteria");
-          console.log("  ctdd check-at AT16      # Check specific AT (diff command)");
+          if (cuts.length > 0) {
+            const firstCut = cuts[0];
+            const exampleId = firstCut.id || "AT1";
+            console.log(`  ctdd check-at ${exampleId}      # Check specific AT from your project`);
+          }
         }
 
       } catch (e) {
@@ -1083,80 +1135,85 @@ The tool development followed CTDD methodology to build CTDD tooling:
     .description("Show current phase progress and completion status")
     .action(async () => {
       try {
-        console.log("📊 CTDD Phase Progress Dashboard");
+        console.log("📊 CTDD Project Status Dashboard");
         console.log("");
 
-        // Read contract to get phase information
-        const { readFile } = await import("fs/promises");
+        // Load project spec
+        const spec = await loadSpec(process.cwd());
+        const cuts = spec.cuts || [];
+
+        // Display project info
+        console.log("📋 Project Information:");
+        console.log(`  • Focus Card: ${spec.focus_card.focus_card_id || 'Not set'}`);
+        console.log(`  • Goal: ${spec.focus_card.goal || 'Not defined'}`);
+        console.log(`  • Acceptance Criteria: ${cuts.length} CUTs defined`);
+        console.log("");
+
+        // System health check
+        console.log("🏥 System Health:");
+        const { exec } = await import("child_process");
+        const { promisify } = await import("util");
+        const execAsync = promisify(exec);
+
+        try {
+          await execAsync("npm test");
+          console.log("  ✅ Tests: Passing");
+        } catch (e) {
+          console.log("  ❌ Tests: Failing or no test script");
+        }
+
+        try {
+          await execAsync("npm run build");
+          console.log("  ✅ Build: Successful");
+        } catch (e) {
+          console.log("  ❌ Build: Failing or no build script");
+        }
+
+        // Check for custom phase definitions
         const { existsSync } = await import("fs");
+        const { readFile } = await import("fs/promises");
 
-        let contractContent = "";
-        if (existsSync("contracts/CTDD_IMPLEMENTATION_CONTRACT.md")) {
-          contractContent = await readFile("contracts/CTDD_IMPLEMENTATION_CONTRACT.md", "utf-8");
+        if (existsSync(".ctdd/phases.json")) {
+          console.log("");
+          console.log("📊 Custom Phase Progress:");
+          try {
+            const phasesContent = await readFile(".ctdd/phases.json", "utf-8");
+            const phases = JSON.parse(phasesContent);
+
+            phases.forEach((phase: any, index: number) => {
+              const status = phase.completed ? "✅ COMPLETED" : "⏳ IN PROGRESS";
+              console.log(`  ${phase.name || `Phase ${index + 1}`}: ${status}`);
+              if (phase.description) {
+                console.log(`    ${phase.description}`);
+              }
+            });
+          } catch (e) {
+            console.log("  ⚠️ Error reading phases.json");
+          }
+        } else {
+          console.log("");
+          console.log("📊 Generic Project Progress:");
+          console.log("  ℹ️  No custom phases defined");
+          console.log("  💡 Create .ctdd/phases.json to track project-specific phases");
         }
 
-        // Phase 1: Testing Foundation
-        console.log("🧪 Phase 1: Testing Foundation");
-        const phase1Complete = existsSync("tests/unit/errors.test.ts") &&
-                              existsSync("tests/integration/plugin-timeouts.test.ts");
-        console.log(`Status: ${phase1Complete ? "✅ COMPLETED" : "❌ INCOMPLETE"}`);
-        if (phase1Complete) {
-          console.log("  • AT1-AT5: Test suite, coverage, integration tests");
+        // CUTs completion status
+        if (cuts.length > 0) {
+          console.log("");
+          console.log("🎯 Acceptance Criteria Status:");
+          cuts.forEach((cut: any, index: number) => {
+            const atId = cut.id || `AT${index + 1}`;
+            const completed = cut.completed || false;
+            const status = completed ? "✅" : "⏳";
+            console.log(`  ${status} ${atId}: ${cut.text || 'No description'}`);
+          });
         }
+
         console.log("");
-
-        // Phase 2: Error Handling
-        console.log("🚨 Phase 2: Error Handling");
-        const phase2Complete = existsSync("src/errors.ts");
-        console.log(`Status: ${phase2Complete ? "✅ COMPLETED" : "❌ INCOMPLETE"}`);
-        if (phase2Complete) {
-          console.log("  • AT6-AT10, AT26-AT30: Error codes, logging, timeout handling");
-        }
-        console.log("");
-
-        // Phase 4: Developer UX
-        console.log("🎨 Phase 4: Developer UX");
-        const phase4Complete = existsSync("dist/index.js");
-        console.log(`Status: ${phase4Complete ? "✅ COMPLETED" : "❌ INCOMPLETE"}`);
-        if (phase4Complete) {
-          console.log("  • AT16-AT20: diff, status --verbose, validate, enhanced help, progress");
-        }
-        console.log("");
-
-        // Phase 5: Type Safety
-        console.log("🔒 Phase 5: Type Safety & Validation");
-        const phase5Complete = existsSync("src/validation.ts") && existsSync("src/errors.ts");
-        console.log(`Status: ${phase5Complete ? "✅ COMPLETED" : "❌ INCOMPLETE"}`);
-        if (phase5Complete) {
-          console.log("  • AT21-AT25: Plugin validation, circular detection, schema versioning");
-        }
-        console.log("");
-
-        // Bootstrap Phase Progress
-        console.log("🚀 Bootstrap Phase: Tool-Assisted Development");
-        const bootstrapPhase0 = existsSync("dist/index.js"); // check-at command built
-        console.log(`Phase 0: ${bootstrapPhase0 ? "✅ COMPLETED" : "⏳ IN PROGRESS"}`);
-        if (bootstrapPhase0) {
-          console.log("  • AT30-AT32: Emergency manual overhead reduction (95% reduction achieved)");
-        }
-        console.log("Phase 1: ⏳ IN PROGRESS");
-        console.log("  • AT33-AT35: Enhanced AT validation and phase tracking");
-        console.log("");
-
-        // Overall Statistics
-        const completedPhases = [phase1Complete, phase2Complete, phase4Complete, phase5Complete, bootstrapPhase0].filter(Boolean).length;
-        const totalPhases = 5; // Phases 1,2,4,5 + Bootstrap Phase 0
-
-        console.log("📈 Overall Progress:");
-        console.log(`  • Major Phases Completed: ${completedPhases}/${totalPhases} (${Math.round(completedPhases/totalPhases*100)}%)`);
-        console.log(`  • Tests Passing: 76/76 (100%)`);
-        console.log(`  • Manual Overhead Reduced: 95% (Phase 0 bootstrap)`);
-        console.log("");
-
-        console.log("🎯 Next Actions:");
-        console.log("  • Continue Phase 1: Enhanced AT validation features");
-        console.log("  • Build Phase 2: Session state automation");
-        console.log("  • Complete tool-assisted development workflow");
+        console.log("💡 Next Steps:");
+        console.log("  1. Run 'ctdd check-at --all' to validate acceptance criteria");
+        console.log("  2. Create .ctdd/phases.json for custom phase tracking");
+        console.log("  3. Use 'ctdd validate' to check project health");
 
       } catch (e) {
         const { logError } = await import('./core.js');

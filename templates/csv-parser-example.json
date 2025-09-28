@@ -1,0 +1,70 @@
+{
+  "focus_card": {
+    "focus_card_id": "FC-001",
+    "title": "Refactor CSV-to-JSON CLI",
+    "goal": "Create a robust CLI to convert CSV to JSON with schema validation.",
+    "deliverables": [
+      "cli.ts",
+      "README.md",
+      "schema.json"
+    ],
+    "constraints": [
+      "Node 18+",
+      "No network calls",
+      "Pure TypeScript"
+    ],
+    "non_goals": [
+      "Web UI",
+      "Database integration"
+    ],
+    "sources_of_truth": [
+      "schema.json",
+      "README examples"
+    ],
+    "token_budget": 2000
+  },
+  "invariants": [
+    {
+      "id": "I1",
+      "text": "CLI must run on Node 18+."
+    },
+    {
+      "id": "I2",
+      "text": "No network calls allowed."
+    },
+    {
+      "id": "I3",
+      "text": "Input via file path or stdin; output to stdout by default."
+    },
+    {
+      "id": "I4",
+      "text": "Validation must use schema.json; fail with nonzero exit."
+    },
+    {
+      "id": "I5",
+      "text": "TypeScript only; no external transpilers."
+    },
+    {
+      "id": "I6",
+      "text": "README examples must be runnable as shown."
+    }
+  ],
+  "cuts": [
+    {
+      "id": "AT1",
+      "text": "Given sample.csv, running `node cli.js sample.csv` emits valid JSON to stdout."
+    },
+    {
+      "id": "AT2",
+      "text": "Invalid rows trigger exit code != 0 and print a single-line error."
+    },
+    {
+      "id": "AT3",
+      "text": "`cat sample.csv | node cli.js` produces the same output as AT1."
+    },
+    {
+      "id": "AT4",
+      "text": "README quickstart command exactly matches the implemented CLI flags."
+    }
+  ]
+}

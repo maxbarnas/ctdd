@@ -6,7 +6,9 @@ import {
   mkdir as fsMkdir,
   stat as fsStat
 } from "fs/promises";
+import { existsSync } from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { z } from "zod";
 import { CTDDError, ErrorCodes, SpecNotFoundError, withErrorContext, createErrorLogEntry, ErrorLogEntry } from "./errors.js";
 import { safeJsonParse, validateNoCircularReferences } from './validation.js';
@@ -702,60 +704,141 @@ export async function applyDeltaObject(
   return { newCommitId };
 }
 
-export async function initProject(root: string) {
+/**
+ * Get the tool templates directory based on installation method
+ * @returns Path to the templates directory
+ */
+function getToolTemplatesDir(): string {
+  // Try different locations based on how the tool is installed
+  // For development: running from src/ directory
+  const __filename = fileURLToPath(import.meta.url);
+  let toolRoot = path.dirname(path.dirname(__filename)); // Go up from dist/ to root
+
+  // Check if we're in a development environment (src/core.ts exists)
+  if (path.basename(toolRoot) === 'dist') {
+    toolRoot = path.dirname(toolRoot); // Go up one more level from dist to actual root
+  }
+
+  let templatesDir = path.join(toolRoot, 'templates');
+
+  // If not found, try npm package location patterns
+  if (!existsSync(templatesDir)) {
+    // Try to find from node_modules
+    const possiblePaths = [
+      path.join(toolRoot, '..', '..', 'ctdd-sidecar', 'templates'), // npm local
+      path.join(toolRoot, '..', 'templates'), // npm global pattern 1
+      path.join(process.execPath, '..', '..', 'lib', 'node_modules', 'ctdd-sidecar', 'templates') // npm global pattern 2
+    ];
+
+    for (const possiblePath of possiblePaths) {
+      if (existsSync(possiblePath)) {
+        templatesDir = possiblePath;
+        break;
+      }
+    }
+  }
+
+  return templatesDir;
+}
+
+/**
+ * Load a template from the tool's templates directory
+ * @param templateName Name of the template (without .json extension)
+ * @returns Loaded and validated Spec template
+ */
+export async function loadTemplate(templateName: string = 'generic-project', projectRoot?: string): Promise<Spec> {
+  const templatesDir = getToolTemplatesDir();
+  const templatePath = path.join(templatesDir, `${templateName}.json`);
+
+  try {
+    // AT75: Tool prefers tool-directory templates over project templates
+    // Try to load the requested template from tool directory first
+    if (await exists(templatePath)) {
+      const templateContent = await fsReadFile(templatePath, 'utf-8');
+      const template = JSON.parse(templateContent);
+
+      // Validate against schema
+      const result = SpecSchema.safeParse(template);
+      if (!result.success) {
+        throw new Error(`Template validation failed: ${result.error.message}`);
+      }
+
+      return result.data;
+    }
+
+    // AT74: Existing projects with templates in .ctdd/templates/ continue to work
+    // Check for legacy template in project directory if provided
+    if (projectRoot) {
+      const legacyTemplatePath = path.join(projectRoot, CTDD_DIR, 'templates', `${templateName}.json`);
+      if (await exists(legacyTemplatePath)) {
+        const templateContent = await fsReadFile(legacyTemplatePath, 'utf-8');
+        const template = JSON.parse(templateContent);
+
+        // Validate against schema
+        const result = SpecSchema.safeParse(template);
+        if (!result.success) {
+          throw new Error(`Legacy template validation failed: ${result.error.message}`);
+        }
+
+        return result.data;
+      }
+    }
+
+    // If requested template doesn't exist, try minimal fallback
+    const minimalPath = path.join(templatesDir, 'minimal.json');
+    if (templateName !== 'minimal' && await exists(minimalPath)) {
+      const minimalContent = await fsReadFile(minimalPath, 'utf-8');
+      const minimal = JSON.parse(minimalContent);
+
+      const result = SpecSchema.safeParse(minimal);
+      if (result.success) {
+        return result.data;
+      }
+    }
+
+    // If no templates found, throw error to trigger the ultimate fallback
+    throw new Error(`Template '${templateName}' not found in ${templatesDir}`);
+  } catch (error) {
+    // Re-throw to let initProject handle the fallback
+    throw error;
+  }
+}
+
+export async function initProject(root: string, templateName?: string) {
   await ensureProjectDirs(root);
   const specPath = path.join(root, CTDD_DIR, SPEC_FILE);
   if (await exists(specPath)) {
     throw new Error("Spec already exists. Aborting init.");
   }
-  const sample: Spec = {
-    focus_card: {
-      focus_card_id: "FC-001",
-      title: "Refactor CSV-to-JSON CLI",
-      goal: "Create a robust CLI to convert CSV to JSON with schema validation.",
-      deliverables: ["cli.ts", "README.md", "schema.json"],
-      constraints: ["Node 18+", "No network calls", "Pure TypeScript"],
-      non_goals: ["Web UI", "Database integration"],
-      sources_of_truth: ["schema.json", "README examples"],
-      token_budget: 2000
-    },
-    invariants: [
-      { id: "I1", text: "CLI must run on Node 18+." },
-      { id: "I2", text: "No network calls allowed." },
-      {
-        id: "I3",
-        text: "Input via file path or stdin; output to stdout by default."
+
+  let sample: Spec;
+  try {
+    // Try to load template from tool directory, with legacy fallback support
+    sample = await loadTemplate(templateName || 'generic-project', root);
+  } catch (error) {
+    // Ultimate fallback if no templates available
+    // This ensures backward compatibility
+    sample = {
+      focus_card: {
+        focus_card_id: "FC-001",
+        title: "New CTDD Project",
+        goal: "Define your project goal here.",
+        deliverables: ["Add your main deliverables here"],
+        constraints: ["Add your constraints here"],
+        non_goals: ["List what this project will NOT do"],
+        sources_of_truth: ["README.md"],
+        token_budget: 2000
       },
-      {
-        id: "I4",
-        text: "Validation must use schema.json; fail with nonzero exit."
-      },
-      { id: "I5", text: "TypeScript only; no external transpilers." },
-      { id: "I6", text: "README examples must be runnable as shown." }
-    ],
-    cuts: [
-      {
-        id: "AT1",
-        text:
-          "Given sample.csv, running `node cli.js sample.csv` emits valid JSON " +
-          "to stdout."
-      },
-      {
-        id: "AT2",
-        text:
-          "Invalid rows trigger exit code != 0 and print a single-line error."
-      },
-      {
-        id: "AT3",
-        text: "`cat sample.csv | node cli.js` produces the same output as AT1."
-      },
-      {
-        id: "AT4",
-        text:
-          "README quickstart command exactly matches the implemented CLI flags."
-      }
-    ]
-  };
+      invariants: [
+        { id: "I1", text: "Replace with your first invariant." },
+        { id: "I2", text: "Replace with your second invariant." }
+      ],
+      cuts: [
+        { id: "AT1", text: "Replace with your first acceptance criteria." },
+        { id: "AT2", text: "Replace with your second acceptance criteria." }
+      ]
+    };
+  }
   await saveSpec(root, sample);
   const commitId = computeCommitId(sample);
   const state: State = { commit_id: commitId, history: [] };

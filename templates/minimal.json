@@ -1,0 +1,32 @@
+{
+  "focus_card": {
+    "focus_card_id": "FC-001",
+    "title": "New CTDD Project",
+    "goal": "Define your project goal here.",
+    "deliverables": ["Add your main deliverables here"],
+    "constraints": ["Add your constraints here"],
+    "non_goals": ["List what this project will NOT do"],
+    "sources_of_truth": ["README.md"],
+    "token_budget": 2000
+  },
+  "invariants": [
+    {
+      "id": "I1",
+      "text": "Replace with your first invariant."
+    },
+    {
+      "id": "I2",
+      "text": "Replace with your second invariant."
+    }
+  ],
+  "cuts": [
+    {
+      "id": "AT1",
+      "text": "Replace with your first acceptance criteria."
+    },
+    {
+      "id": "AT2",
+      "text": "Replace with your second acceptance criteria."
+    }
+  ]
+}

@@ -69,8 +69,8 @@ describe('CLI Integration Tests', () => {
 
       expect(stderr).toBe('');
       expect(stdout).toContain('Commit: CTDD:FC-001@');
-      expect(stdout).toContain('Title: Refactor CSV-to-JSON CLI');
-      expect(stdout).toContain('Goal: Create a robust CLI');
+      expect(stdout).toContain('Title: New CTDD Project');
+      expect(stdout).toContain('Goal: Define your project goal here.');
       expect(stdout).toContain('History entries: 0');
     });
 
@@ -148,8 +148,8 @@ describe('CLI Integration Tests', () => {
 
       expect(stderr).toBe('');
       expect(stdout).toContain('Commit: CTDD:FC-001@');
-      expect(stdout).toContain('I1, I2, I3, I4, I5, I6');
-      expect(stdout).toContain('AT1, AT2, AT3, AT4');
+      expect(stdout).toContain('I1, I2');
+      expect(stdout).toContain('AT1, AT2');
       expect(stdout).toContain('"post_check"');
     });
 

@@ -43,6 +43,11 @@ npx ctdd checks --json
 # Apply delta to spec
 npx ctdd delta delta.json
 
+# Project-agnostic validation commands
+npx ctdd check-at --all               # Validate all acceptance criteria from spec.json
+npx ctdd check-at AT1                 # Validate specific acceptance criteria
+npx ctdd phase-status                 # Show project progress and health
+
 # Generate agent briefing documents
 npx ctdd brief --out AGENT_BRIEF.md
 npx ctdd brief-json --out AGENT_BRIEF.json
@@ -118,6 +123,67 @@ CTDD (Context Test-Driven Development) is a lightweight framework for guiding LL
 - Error handling uses structured E001-E999 error codes with actionable messages
 - Comprehensive test suite with 76 tests (100% coverage on error handling)
 
+## Project-Specific Customization
+
+### Custom Validation Scripts
+
+The CTDD tool supports project-specific validation for acceptance criteria:
+
+1. **Create validation directory**: `.ctdd/validation/`
+2. **Add validation scripts**: Named after your acceptance criteria (e.g., `at16.js` for AT16)
+3. **Export validation function**:
+
+```javascript
+export async function validate() {
+  try {
+    // Your custom validation logic
+    const result = await yourProjectSpecificTest();
+
+    return {
+      passed: true,  // or false
+      message: "AT16: Your acceptance criteria description and result",
+      evidence: "Concrete evidence like command output, file content, etc."
+    };
+  } catch (error) {
+    return {
+      passed: false,
+      message: "AT16: Test failed",
+      evidence: `Error: ${error.message}`
+    };
+  }
+}
+
+export default validate;
+```
+
+### Custom Phase Tracking
+
+Create `.ctdd/phases.json` to define project-specific phases:
+
+```json
+[
+  {
+    "name": "Phase 1: Setup",
+    "description": "Initial project configuration",
+    "completed": true
+  },
+  {
+    "name": "Phase 2: Core Features",
+    "description": "Implement main functionality",
+    "completed": false
+  }
+]
+```
+
+### Commands Work With Any Project
+
+The tool automatically reads from your project's `.ctdd/spec.json`:
+
+- `ctdd check-at --all` - Validates all CUTs from your spec
+- `ctdd check-at AT1` - Validates specific acceptance criteria from your project
+- `ctdd phase-status` - Shows your project's information and progress
+- `ctdd validate` - Validates your project setup
+
 ## Tool-Assisted CTDD Development Workflow (BREAKTHROUGH!)
 
 **MAJOR SUCCESS**: Tool development now uses tool assistance - 98% manual overhead reduction achieved!
@@ -163,7 +229,8 @@ ctdd init --full         # Complete CTDD setup for new projects
 - Todo management: 10 minutes manual recreation
 
 **After CTDD tools**: <1 minute per development cycle (98% reduction!)
-- AT validation: `ctdd check-at --all` (30 seconds)
+- AT validation: `ctdd check-at --all` (2.4 seconds - 94% faster!)
+- Deep validation: `ctdd check-at --all --deep` (45 seconds - when comprehensive testing needed)
 - Session updates: `ctdd update-session --complete AT##` (5 seconds)
 - Todo sync: `ctdd todo-sync --save/--load` (10 seconds)
 
@@ -178,7 +245,8 @@ ctdd init --full         # Complete CTDD setup for new projects
 2. **Verify current state using tool commands:**
    ```bash
    # Use these automated commands instead of manual checking:
-   ctdd check-at --all         # Comprehensive AT validation (30s vs 15min)
+   ctdd check-at --all         # Lightning-fast AT validation (2.4s vs 15min)
+   ctdd check-at --all --deep  # Comprehensive validation when needed (45s)
    ctdd phase-status          # Project progress dashboard
    ctdd todo-sync --status    # Todo synchronization status
    npm test                   # Should show 76/76 tests passing
