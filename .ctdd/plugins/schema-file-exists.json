@@ -1,0 +1,9 @@
+{
+  "id": "schema-file-exists",
+  "title": "schema.json is present",
+  "kind": "file_exists",
+  "file": "schema.json",
+  "should_exist": true,
+  "report_as": "AT1:static",
+  "relatedCuts": ["AT1"]
+}

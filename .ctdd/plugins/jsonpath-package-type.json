@@ -1,0 +1,9 @@
+{
+  "id": "pkg-type-module",
+  "title": "package.json type is module",
+  "kind": "jsonpath",
+  "file": "package.json",
+  "path": "$.type",
+  "equals": "module",
+  "report_as": "BUILD:pkg-type"
+}

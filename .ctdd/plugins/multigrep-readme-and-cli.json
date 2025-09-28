@@ -1,0 +1,23 @@
+{
+  "id": "readme-cli-out-flag",
+  "title": "README mentions --out and CLI implements it",
+  "kind": "multi_grep",
+  "mode": "all",
+  "checks": [
+    {
+      "file": "README.md",
+      "pattern": "--out",
+      "flags": "i",
+      "must_exist": true,
+      "label": "README: --out"
+    },
+    {
+      "file": "cli.ts",
+      "pattern": "--out",
+      "must_exist": true,
+      "label": "CLI: --out"
+    }
+  ],
+  "report_as": "AT4:static",
+  "relatedCuts": ["AT4"]
+}

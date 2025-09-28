@@ -1,0 +1,12 @@
+{
+  "id": "grep-readme-flags",
+  "title": "README documents CLI flags",
+  "kind": "grep",
+  "file": "README.md",
+  "pattern": "--out",
+  "flags": "i",
+  "must_exist": true,
+  "report_as": "AT4",
+  "relatedCuts": ["AT4"],
+  "relatedInvariants": ["I6"]
+}

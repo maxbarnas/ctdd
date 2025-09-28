@@ -1,0 +1,11 @@
+{
+  "id": "no-network-calls",
+  "title": "No network calls in CLI source",
+  "kind": "grep",
+  "file": "cli.ts",
+  "pattern": "fetch\\(|axios\\.|http\\.|https\\.",
+  "flags": "i",
+  "must_exist": false,
+  "report_as": "I2:static",
+  "relatedInvariants": ["I2"]
+}

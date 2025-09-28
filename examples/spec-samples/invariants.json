@@ -1,0 +1,14 @@
+[
+  {"id": "I1", "text": "CLI must run on Node 18+."},
+  {"id": "I2", "text": "No network calls allowed."},
+  {
+    "id": "I3",
+    "text": "Input via file path or stdin; output to stdout by default."
+  },
+  {
+    "id": "I4",
+    "text": "Validation must use schema.json; fail with nonzero exit."
+  },
+  {"id": "I5", "text": "TypeScript only; no external transpilers."},
+  {"id": "I6", "text": "README examples must be runnable as shown."}
+]

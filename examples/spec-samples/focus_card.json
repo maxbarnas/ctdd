@@ -1,0 +1,10 @@
+{
+  "focus_card_id": "FC-001",
+  "title": "Refactor CSV-to-JSON CLI",
+  "goal": "Create a robust CLI to convert CSV to JSON with schema validation.",
+  "deliverables": ["cli.ts", "README.md", "schema.json"],
+  "constraints": ["Node 18+", "No network calls", "Pure TypeScript"],
+  "non_goals": ["Web UI", "Database integration"],
+  "sources_of_truth": ["schema.json", "README examples"],
+  "token_budget": 2000
+}

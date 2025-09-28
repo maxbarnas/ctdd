@@ -1,0 +1,12 @@
+{
+  "id": "src-ts-no-console",
+  "title": "No console.* in src/**/*.ts",
+  "kind": "glob",
+  "pattern": "src/**/*.ts",
+  "each_grep": {
+    "pattern": "console\\.",
+    "must_exist": false
+  },
+  "each_mode": "all",
+  "report_as": "LINT:no-console"
+}

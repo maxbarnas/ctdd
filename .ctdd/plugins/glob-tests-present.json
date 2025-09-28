@@ -1,0 +1,8 @@
+{
+  "id": "has-tests",
+  "title": "At least one test file exists",
+  "kind": "glob",
+  "pattern": "tests/**/*.spec.ts",
+  "min": 1,
+  "report_as": "TESTS:present"
+}

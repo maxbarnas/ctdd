@@ -1,0 +1,15 @@
+{
+  "commit_id": "CTDD:FC-001@abcdef1",
+  "post_check": [
+    {"id": "AT1", "status": "PASS", "evidence": "Manual run OK"},
+    {"id": "AT2", "status": "FAIL", "evidence": "Exit code 0 on invalid input"}
+  ],
+  "deltas": [
+    {
+      "type": "modify",
+      "target": "README.md",
+      "reason": "Align flags in quickstart"
+    }
+  ],
+  "next": "Wire schema.json validation and nonzero exit code on invalid rows."
+}

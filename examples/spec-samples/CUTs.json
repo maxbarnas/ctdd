@@ -1,0 +1,18 @@
+[
+  {
+    "id": "AT1",
+    "text": "Given sample.csv, running `node cli.js sample.csv` emits valid JSON to stdout."
+  },
+  {
+    "id": "AT2",
+    "text": "Invalid rows trigger exit code != 0 and print a single-line error."
+  },
+  {
+    "id": "AT3",
+    "text": "`cat sample.csv | node cli.js` produces the same output as AT1."
+  },
+  {
+    "id": "AT4",
+    "text": "README quickstart command exactly matches the implemented CLI flags."
+  }
+]

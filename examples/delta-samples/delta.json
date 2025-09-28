@@ -1,0 +1,14 @@
+{
+  "type": "modify",
+  "target": "I3",
+  "from": "Input via file path or stdin; output to stdout by default.",
+  "to": "Input via file path or stdin; output to stdout or file via --out.",
+  "reason": "Users need file output.",
+  "impacted_tests": ["AT1", "AT3"],
+  "new_tests": [
+    {
+      "id": "AT5",
+      "text": "`--out out.json` writes to file. Without --out, stdout remains default."
+    }
+  ]
+}

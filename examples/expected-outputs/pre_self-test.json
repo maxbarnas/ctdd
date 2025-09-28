@@ -1,0 +1,8 @@
+{
+  "commit_id": "CTDD:FC-001@abcdef1",
+  "self_check": [{"id": "I1", "status": "PASS"}],
+  "target_cuts": ["AT1", "AT3"],
+  "plan_step": "Implement CLI arg parsing and stdin handling.",
+  "risks": ["Schema validation may require a library."],
+  "questions": ["May I use Ajv as a dev dependency?"]
+}
