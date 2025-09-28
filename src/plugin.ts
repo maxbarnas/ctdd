@@ -14,6 +14,7 @@ import * as path from "path";
 import { z } from "zod";
 import fg from "fast-glob";
 import { JSONPath } from "jsonpath-plus";
+import { CTDDError, ErrorCodes, PluginConfigError, PluginTimeoutError, withErrorContext } from "./errors.js";
 
 const PluginDirName = "plugins";
 
@@ -108,34 +109,85 @@ async function listPluginFiles(root: string): Promise<string[]> {
   const dir = path.join(root, CTDD_DIR, PluginDirName);
   try {
     const st = await fsStat(dir);
-    if (!st.isDirectory()) return [];
-  } catch {
+    if (!st.isDirectory()) {
+      console.warn(`[WARN] Plugin directory exists but is not a directory: ${dir}`);
+      return [];
+    }
+  } catch (error: any) {
+    // Expected when plugins directory doesn't exist
+    if (error?.code !== 'ENOENT') {
+      console.warn(`[WARN] Unexpected error accessing plugin directory ${dir}: ${error?.message}`);
+    }
     return [];
   }
-  const names = await fsReaddir(dir);
-  return names
-    .filter((n) => n.endsWith(".json"))
-    .map((n) => path.join(dir, n));
+
+  try {
+    const names = await fsReaddir(dir);
+    return names
+      .filter((n) => n.endsWith(".json"))
+      .map((n) => path.join(dir, n));
+  } catch (error: any) {
+    throw new CTDDError(
+      `Failed to read plugin directory: ${error?.message || 'Unknown error'}`,
+      ErrorCodes.PLUGIN_LOAD_FAILED,
+      { pluginDir: dir, originalError: error?.code },
+      [
+        'Check directory permissions',
+        'Verify plugin directory is accessible',
+        'Create plugins directory if missing'
+      ]
+    );
+  }
 }
 
 export async function loadPlugins(root: string): Promise<PluginDef[]> {
   const files = await listPluginFiles(root);
   const out: PluginDef[] = [];
+  const validationErrors: string[] = [];
+
   for (const f of files) {
     try {
       const raw = await fsReadFile(f, "utf-8");
       const json = JSON.parse(raw);
       const parsed = PluginSchema.safeParse(json);
-      if (parsed.success) out.push(parsed.data);
-      else
-        console.warn(
-          `Invalid plugin ${path.basename(f)}:`,
-          parsed.error.message
-        );
+
+      if (parsed.success) {
+        out.push(parsed.data);
+      } else {
+        // Enhanced validation error with structured details
+        const fileName = path.basename(f);
+        const errorDetails = parsed.error.issues.map(issue => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+          code: issue.code,
+          expected: issue.code === 'invalid_union_discriminator' ? issue.options : undefined
+        }));
+
+        const errorMessage = `Invalid plugin ${fileName}: ${JSON.stringify(errorDetails, null, 2)}`;
+        validationErrors.push(errorMessage);
+        console.warn(errorMessage);
+      }
     } catch (e) {
-      console.warn(`Failed to load plugin ${f}:`, e);
+      const fileName = path.basename(f);
+      const errorMessage = `Failed to load plugin ${fileName}: ${e instanceof Error ? e.message : 'Unknown error'}`;
+      validationErrors.push(errorMessage);
+      console.warn(errorMessage);
     }
   }
+
+  // If there are validation errors, log them to error system
+  if (validationErrors.length > 0) {
+    const { logError } = await import('./core.js');
+    await logError(
+      root,
+      new PluginConfigError(
+        path.join(root, CTDD_DIR, PluginDirName),
+        `Plugin validation failed for ${validationErrors.length} plugin(s): ${validationErrors.join('; ')}`
+      ),
+      'loadPlugins'
+    );
+  }
+
   return out;
 }
 
@@ -159,8 +211,9 @@ function compileRegex(
   try {
     const re = new RegExp(pattern, flags ?? "");
     return { re };
-  } catch {
-    return { re: null, err: `Invalid regex: /${pattern}/${flags ?? ""}` };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown regex error';
+    return { re: null, err: `Invalid regex: /${pattern}/${flags ?? ""} - ${errorMsg}` };
   }
 }
 
@@ -174,15 +227,16 @@ async function runGrep(
   let content = "";
   try {
     content = await fsReadFile(filePath, "utf-8");
-  } catch {
+  } catch (error: any) {
     const status = def.must_exist ? "FAIL" : "PASS";
+    const errorContext = error?.code === 'ENOENT' ? 'file not found' : `read error: ${error?.message}`;
     return {
       ...base,
       title:
         base.title ||
         `grep ${def.file} /${def.pattern}/${def.flags ?? ""}`,
       status,
-      evidence: `File not found: ${def.file}`
+      evidence: `${errorContext}: ${def.file}`
     };
   }
   const { re, err } = compileRegex(def.pattern, def.flags);
@@ -328,12 +382,13 @@ async function runMultiGrep(
     let sub: Sub;
     try {
       content = await fsReadFile(filePath, "utf-8");
-    } catch {
+    } catch (error: any) {
       const ok = item.must_exist ? "FAIL" : "PASS";
+      const errorMsg = error?.code === 'ENOENT' ? 'file not found' : `read error: ${error?.message}`;
       sub = {
         label: item.label ?? `${item.file} /${item.pattern}/`,
         status: ok as "PASS" | "FAIL",
-        evidence: `File not found: ${item.file}`
+        evidence: `${errorMsg}: ${item.file}`
       };
       subs.push(sub);
       continue;
@@ -419,8 +474,9 @@ async function runGlob(
       let content = "";
       try {
         content = await fsReadFile(filePath, "utf-8");
-      } catch {
+      } catch (error: any) {
         // If file vanished between glob and read, mark as fail.
+        console.warn(`[WARN] File read failed for ${rel}: ${error?.message || 'Unknown error'}`);
         subResults.push({
           file: rel,
           pass: !must_exist, // reading failure counts as not found
@@ -467,24 +523,77 @@ async function runGlob(
   };
 }
 
-export async function runPlugins(root: string): Promise<PluginResult[]> {
-  const spec = await loadSpec(root);
-  const defs = await loadPlugins(root);
-  const results: PluginResult[] = [];
-  for (const def of defs) {
-    if (def.kind === "grep") {
-      results.push(await runGrep(root, spec, def));
-    } else if (def.kind === "file_exists") {
-      results.push(await runFileExists(root, spec, def));
-    } else if (def.kind === "jsonpath") {
-      results.push(await runJsonPath(root, spec, def));
-    } else if (def.kind === "multi_grep") {
-      results.push(await runMultiGrep(root, spec, def));
-    } else if (def.kind === "glob") {
-      results.push(await runGlob(root, spec, def));
+// Timeout wrapper for plugin execution
+export async function withTimeout<T>(
+  operation: () => Promise<T>,
+  timeoutMs: number,
+  operationName: string
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new PluginTimeoutError(operationName, timeoutMs));
+    }, timeoutMs);
+
+    operation()
+      .then(result => {
+        clearTimeout(timer);
+        resolve(result);
+      })
+      .catch(error => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
+export async function runPlugins(root: string, timeoutMs: number = 30000): Promise<PluginResult[]> {
+  return withErrorContext('runPlugins', async () => {
+    const spec = await loadSpec(root);
+    const defs = await loadPlugins(root);
+    const results: PluginResult[] = [];
+
+    // Execute plugins with timeout
+    for (const def of defs) {
+      try {
+        let result: PluginResult;
+
+        if (def.kind === "grep") {
+          result = await withTimeout(() => runGrep(root, spec, def), timeoutMs, def.id);
+        } else if (def.kind === "file_exists") {
+          result = await withTimeout(() => runFileExists(root, spec, def), timeoutMs, def.id);
+        } else if (def.kind === "jsonpath") {
+          result = await withTimeout(() => runJsonPath(root, spec, def), timeoutMs, def.id);
+        } else if (def.kind === "multi_grep") {
+          result = await withTimeout(() => runMultiGrep(root, spec, def), timeoutMs, def.id);
+        } else if (def.kind === "glob") {
+          result = await withTimeout(() => runGlob(root, spec, def), timeoutMs, def.id);
+        } else {
+          const anyDef = def as any;
+          console.warn(`Unknown plugin kind: ${anyDef.kind}`);
+          result = {
+            id: anyDef.report_as || anyDef.id,
+            plugin_id: anyDef.id,
+            title: anyDef.title || `Plugin ${anyDef.id}`,
+            status: "FAIL",
+            evidence: `Unknown plugin kind: ${anyDef.kind}`
+          };
+        }
+
+        results.push(result);
+      } catch (error) {
+        const anyDef = def as any;
+        console.error(`Plugin ${anyDef.id} failed:`, error);
+        results.push({
+          id: anyDef.report_as || anyDef.id,
+          plugin_id: anyDef.id,
+          title: anyDef.title || `Plugin ${anyDef.id}`,
+          status: "FAIL",
+          evidence: error instanceof Error ? error.message : String(error)
+        });
+      }
     }
-  }
-  return results;
+    return results;
+  });
 }
 
 // Convert plugin results into Post-Test-style checks

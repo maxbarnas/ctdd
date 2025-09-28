@@ -13,9 +13,11 @@ import {
   recordEvent,
   applyDeltaObject,
   PreResponseSchema,
-  PostResponseSchema
+  PostResponseSchema,
+  logError
 } from "./core.js";
 import { runPlugins, checksToPostChecks, loadPlugins } from "./plugin.js";
+import { CTDDError } from "./errors.js";
 
 type ServerOptions = {
   root: string;
@@ -54,7 +56,15 @@ export async function startServer(opts: ServerOptions) {
       const { commitId } = await initProject(root);
       res.json({ ok: true, commit_id: commitId });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'POST /init');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -68,7 +78,15 @@ export async function startServer(opts: ServerOptions) {
       };
       res.json({ ok: true, commit_id: commitId, spec, state });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -79,7 +97,15 @@ export async function startServer(opts: ServerOptions) {
       const prompt = renderPrePrompt(spec, commitId);
       res.type("text/plain").send(prompt);
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -91,7 +117,15 @@ export async function startServer(opts: ServerOptions) {
       const prompt = renderPostPrompt(spec, commitId, artifact);
       res.type("text/plain").send(prompt);
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -109,7 +143,15 @@ export async function startServer(opts: ServerOptions) {
       const state = await recordEvent(root, "pre", data);
       res.json({ ok: true, commit_id: state.commit_id });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -140,7 +182,15 @@ export async function startServer(opts: ServerOptions) {
       const md = renderAgentBrief(spec, commitId, pluginsInfo);
       res.type("text/markdown").send(md);
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -171,7 +221,15 @@ export async function startServer(opts: ServerOptions) {
       const json = renderAgentBriefJson(spec, commitId, pluginsInfo);
       res.json(json);
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -344,7 +402,15 @@ export async function startServer(opts: ServerOptions) {
         plugin_checks: results
       });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -353,7 +419,15 @@ export async function startServer(opts: ServerOptions) {
       const results = await runPlugins(root);
       res.json({ ok: true, checks: results });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 
@@ -363,7 +437,15 @@ export async function startServer(opts: ServerOptions) {
       const { newCommitId } = await applyDeltaObject(root, delta);
       res.json({ ok: true, commit_id: newCommitId });
     } catch (e: any) {
-      res.status(400).json({ ok: false, error: String(e?.message ?? e) });
+      // Log error to structured log
+      try {
+        await logError(root, e, 'server-endpoint');
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+
+      const errorMessage = e instanceof CTDDError ? e.toString() : String(e?.message ?? e);
+      res.status(400).json({ ok: false, error: errorMessage });
     }
   });
 

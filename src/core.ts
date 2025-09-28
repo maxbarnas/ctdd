@@ -8,6 +8,8 @@ import {
 } from "fs/promises";
 import * as path from "path";
 import { z } from "zod";
+import { CTDDError, ErrorCodes, SpecNotFoundError, withErrorContext, createErrorLogEntry, ErrorLogEntry } from "./errors.js";
+import { safeJsonParse, validateNoCircularReferences } from './validation.js';
 
 export const CTDD_DIR = ".ctdd";
 export const SPEC_FILE = "spec.json";
@@ -39,6 +41,16 @@ export const CutSchema = z.object({
 });
 
 export const SpecSchema = z.object({
+  focus_card: FocusCardSchema,
+  invariants: z.array(InvariantSchema),
+  cuts: z.array(CutSchema)
+});
+
+// Schema versioning support
+export const SCHEMA_VERSION = "1.0.0";
+
+export const VersionedSpecSchema = z.object({
+  version: z.string().optional().default(SCHEMA_VERSION),
   focus_card: FocusCardSchema,
   invariants: z.array(InvariantSchema),
   cuts: z.array(CutSchema)
@@ -114,7 +126,11 @@ export async function exists(p: string) {
   try {
     await fsStat(p);
     return true;
-  } catch {
+  } catch (error) {
+    // File not found is expected, other errors should be logged
+    if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') {
+      console.warn(`[WARN] Unexpected error checking file existence for ${p}: ${error.message}`);
+    }
     return false;
   }
 }
@@ -147,10 +163,96 @@ export function computeCommitId(spec: Spec): string {
   return `CTDD:${spec.focus_card.focus_card_id}@${h}`;
 }
 
+export async function logError(
+  root: string,
+  error: CTDDError | Error,
+  operation?: string,
+  userId?: string
+): Promise<void> {
+  try {
+    const errorLogPath = path.join(root, CTDD_DIR, LOG_DIR, "errors.json");
+    const entry = createErrorLogEntry(error, operation, userId);
+
+    let existingErrors: ErrorLogEntry[] = [];
+    try {
+      const existingContent = await fsReadFile(errorLogPath, "utf-8");
+      existingErrors = JSON.parse(existingContent);
+    } catch {
+      // File doesn't exist or is invalid, start fresh
+    }
+
+    existingErrors.push(entry);
+
+    // Keep only the last 1000 errors to prevent unbounded growth
+    if (existingErrors.length > 1000) {
+      existingErrors = existingErrors.slice(-1000);
+    }
+
+    await fsWriteFile(errorLogPath, JSON.stringify(existingErrors, null, 2));
+  } catch (logError) {
+    // Don't throw errors from the error logger itself
+    console.error("Failed to log error:", logError);
+  }
+}
+
 export async function loadSpec(root: string): Promise<Spec> {
-  const p = path.join(root, CTDD_DIR, SPEC_FILE);
-  const raw = await fsReadFile(p, "utf-8");
-  return SpecSchema.parse(JSON.parse(raw));
+  return withErrorContext('loadSpec', async () => {
+    const p = path.join(root, CTDD_DIR, SPEC_FILE);
+
+    try {
+      const raw = await fsReadFile(p, "utf-8");
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (parseError) {
+        throw new CTDDError(
+          `Invalid JSON in spec file: ${parseError instanceof Error ? parseError.message : 'Parse error'}`,
+          ErrorCodes.SPEC_INVALID,
+          { specPath: p },
+          [
+            'Check JSON syntax in spec file',
+            'Use a JSON validator to identify issues',
+            'Restore from backup or run "ctdd init"'
+          ]
+        );
+      }
+
+      try {
+        return SpecSchema.parse(parsed);
+      } catch (validationError) {
+        throw new CTDDError(
+          `Spec file failed schema validation: ${validationError instanceof Error ? validationError.message : 'Validation error'}`,
+          ErrorCodes.SCHEMA_VALIDATION_FAILED,
+          { specPath: p },
+          [
+            'Check spec file structure against documentation',
+            'Verify all required fields are present',
+            'Run "ctdd init" to create a valid spec'
+          ]
+        );
+      }
+    } catch (fileError: any) {
+      if (fileError instanceof CTDDError) {
+        throw fileError;
+      }
+
+      if (fileError?.code === 'ENOENT') {
+        throw new SpecNotFoundError(p);
+      }
+
+      throw new CTDDError(
+        `Failed to read spec file: ${fileError?.message || 'Unknown error'}`,
+        ErrorCodes.SPEC_NOT_FOUND,
+        { specPath: p, originalError: fileError?.code },
+        [
+          'Check file permissions',
+          'Verify file exists and is readable',
+          'Run "ctdd init" if no spec exists'
+        ]
+      );
+    }
+  }, { specPath: path.join(root, CTDD_DIR, SPEC_FILE) });
 }
 
 export async function saveSpec(root: string, spec: Spec) {
