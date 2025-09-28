@@ -12,7 +12,11 @@
     "serve": "node dist/server.js",
     "brief": "node dist/index.js brief --out AGENT_BRIEF.md",
     "brief-json": "node dist/index.js brief-json --out AGENT_BRIEF.json",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "commander": "^11.1.0",
@@ -25,8 +29,10 @@
     "@types/commander": "^2.12.2",
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18"
