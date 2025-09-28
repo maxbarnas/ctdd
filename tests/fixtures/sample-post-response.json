@@ -1,0 +1,10 @@
+{
+  "commit_id": "CTDD:FC-TEST-001@abc123f",
+  "post_check": [
+    {"id": "AT1", "status": "PASS", "evidence": "parser.js:15 - CSV reading works"},
+    {"id": "AT2", "status": "FAIL", "evidence": "Error handling not implemented yet"},
+    {"id": "AT3", "status": "PASS", "evidence": "Empty file test passes"}
+  ],
+  "deltas": [],
+  "next": "Implement error handling for AT2"
+}

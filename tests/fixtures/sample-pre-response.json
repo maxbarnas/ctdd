@@ -1,0 +1,12 @@
+{
+  "commit_id": "CTDD:FC-TEST-001@abc123f",
+  "self_check": [
+    {"id": "I1", "status": "PASS"},
+    {"id": "I2", "status": "PASS"},
+    {"id": "I3", "status": "PASS"}
+  ],
+  "target_cuts": ["AT1", "AT2"],
+  "plan_step": "Implement CSV reading and JSON conversion",
+  "risks": ["File encoding issues", "Memory usage on large files"],
+  "questions": ["Should we support custom delimiters?"]
+}

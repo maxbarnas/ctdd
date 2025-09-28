@@ -1,0 +1,22 @@
+{
+  "focus_card": {
+    "focus_card_id": "FC-TEST-001",
+    "title": "Test CSV Parser",
+    "goal": "Create a simple CSV to JSON converter for testing",
+    "deliverables": ["parser.js", "test.csv", "README.md"],
+    "constraints": ["Node 18+", "No external deps"],
+    "non_goals": ["Web UI", "Database"],
+    "sources_of_truth": ["test.csv"],
+    "token_budget": 1000
+  },
+  "invariants": [
+    {"id": "I1", "text": "Must run on Node 18+"},
+    {"id": "I2", "text": "No external dependencies allowed"},
+    {"id": "I3", "text": "Output must be valid JSON"}
+  ],
+  "cuts": [
+    {"id": "AT1", "text": "Parser reads CSV file and outputs JSON"},
+    {"id": "AT2", "text": "Invalid CSV returns error code 1"},
+    {"id": "AT3", "text": "Empty file produces empty array"}
+  ]
+}

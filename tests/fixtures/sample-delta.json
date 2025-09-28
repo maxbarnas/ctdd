@@ -1,0 +1,9 @@
+{
+  "type": "modify",
+  "target": "I2",
+  "from": "No external dependencies allowed",
+  "to": "No external dependencies except for testing",
+  "reason": "Need testing framework for validation",
+  "impacted_tests": ["AT1", "AT2"],
+  "new_tests": []
+}
