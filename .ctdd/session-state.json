@@ -201,7 +201,7 @@
         "node dist/index.js status -v   # Verbose status with health"
       ],
       "for_new_claude_instance": [
-        "1. Read CTDD_IMPLEMENTATION_CONTRACT.md for full context",
+        "1. Read contracts/CTDD_IMPLEMENTATION_CONTRACT.md for full context",
         "2. This session-state.json IS the single source of truth for progress",
         "3. Run verification commands above to confirm system health",
         "4. Phase 2 (Error Handling) & Phase 4 (Developer UX) are COMPLETE",

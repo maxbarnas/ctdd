@@ -124,7 +124,7 @@ CTDD (Context Test-Driven Development) is a lightweight framework for guiding LL
 
 1. **Read resumption files first:**
    - `.ctdd/session-state.json` - SINGLE SOURCE OF TRUTH for progress, instructions, and implementation state
-   - `CTDD_IMPLEMENTATION_CONTRACT.md` - Full project context
+   - `contracts/CTDD_IMPLEMENTATION_CONTRACT.md` - Full project context
 
 2. **Verify current state using commands from session-state.json:**
    ```bash
