@@ -117,6 +117,23 @@ ctdd compress-context
 2. **Invariants**: Non-negotiable conditions that must always hold
 3. **CUTs**: Acceptance criteria with testable evidence
 4. **Tool-Assisted Implementation**: Use ctdd commands to reduce manual overhead
+5. **Contract Archival**: Move completed contracts to contracts/archive/
+
+### Contract Management
+
+**Automatic Contract Archival**: When completing CTDD contracts, move them to contracts/archive/:
+
+\`\`\`bash
+# After completing all acceptance criteria:
+ctdd check-at --all                      # Verify completion
+mv contracts/COMPLETED_CONTRACT.md contracts/archive/
+git commit -m "feat: Complete contract"  # Commit with completion
+\`\`\`
+
+**Organization**:
+- **Active contracts**: Keep in contracts/ (work in progress)
+- **Completed contracts**: Move to contracts/archive/ (historical reference)
+- **Benefits**: Clean workspace, clear progress tracking, easy reference
 
 ### Proven Patterns (From Bootstrap Success)
 

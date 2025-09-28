@@ -234,6 +234,31 @@ ctdd init --full         # Complete CTDD setup for new projects
 - Session updates: `ctdd update-session --complete AT##` (5 seconds)
 - Todo sync: `ctdd todo-sync --save/--load` (10 seconds)
 
+### CTDD Contract Management
+
+**Automatic Contract Archival**: When completing CTDD contracts (Focus Cards), move completed contracts to `contracts/archive/` to maintain clean project organization:
+
+```bash
+# After completing all acceptance criteria for a contract:
+mv contracts/COMPLETED_CONTRACT.md contracts/archive/
+
+# Or create archive directory if it doesn't exist:
+mkdir -p contracts/archive
+mv contracts/COMPLETED_CONTRACT.md contracts/archive/
+```
+
+**Contract Organization**:
+- **Active contracts**: Keep in `contracts/` (work in progress)
+- **Completed contracts**: Move to `contracts/archive/` (historical reference)
+- **Benefits**: Clean workspace, clear progress tracking, easy historical reference
+
+**Integration with CTDD Workflow**:
+- Complete all CUTs (acceptance criteria) in contract
+- Verify with `ctdd check-at --all`
+- Run tests to ensure no regressions
+- Archive contract to signal completion
+- Commit changes with contract completion message
+
 ### Context Preservation & Resumption
 
 **If context gets condensed/cleared during CTDD work:**

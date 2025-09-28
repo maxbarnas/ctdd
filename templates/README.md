@@ -89,3 +89,46 @@ If a requested template is not found:
 - Include realistic example invariants and CUTs
 - Test your template with `ctdd init --template your-template`
 - Validate JSON syntax before saving
+
+## CTDD Project Management
+
+### Contract Organization
+When working with CTDD contracts (Focus Cards), follow this organization pattern:
+
+**Directory Structure:**
+```
+project-root/
+├── contracts/
+│   ├── ACTIVE_CONTRACT_1.md      # Work in progress
+│   ├── ACTIVE_CONTRACT_2.md      # Work in progress
+│   └── archive/
+│       ├── COMPLETED_CONTRACT_1.md  # Finished contracts
+│       └── COMPLETED_CONTRACT_2.md  # Historical reference
+```
+
+**Contract Lifecycle:**
+1. Create contracts in `contracts/` for active work
+2. Complete all acceptance criteria (CUTs) in the contract
+3. Verify completion with `ctdd check-at --all`
+4. Move completed contracts to `contracts/archive/`
+5. Commit changes with contract completion message
+
+**Archival Commands:**
+```bash
+# Create archive directory if needed
+mkdir -p contracts/archive
+
+# Move completed contract
+mv contracts/COMPLETED_CONTRACT.md contracts/archive/
+
+# Example workflow
+ctdd check-at --all                    # Verify all ATs pass
+mv contracts/FC-FEATURE-001.md contracts/archive/
+git add . && git commit -m "feat: Complete FC-FEATURE-001 contract"
+```
+
+**Benefits:**
+- Clean workspace with only active contracts visible
+- Clear progress tracking and completion signals
+- Easy access to historical contracts for reference
+- Organized project structure for better maintainability
