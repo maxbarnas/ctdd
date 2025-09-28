@@ -107,7 +107,7 @@ CTDD (Context Test-Driven Development) is a lightweight framework for guiding LL
 
 ### Important Files
 - `.ctdd/spec.json`: Project specification
-- `.ctdd/state.json`: Current state and history pointer
+- `.ctdd/session-state.json`: Current state and history (auto-managed)
 - `.ctdd/logs/`: Timestamped event logs
 - `.ctdd/plugins/`: Plugin JSON configurations
 
