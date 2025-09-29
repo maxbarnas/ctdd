@@ -1,7 +1,7 @@
 {
   "ctdd_session": {
     "session_id": "production-ready-ctdd-2024-09-28",
-    "last_updated": "2025-09-29T19:38:23.630Z",
+    "last_updated": "2025-09-29T20:06:35.153Z",
     "contract_commit": "CTDD:FC-CTDD-TOOL-001@1f6b2fe",
     "claude_instance": "Sonnet 4 (claude-sonnet-4-20250514)",
     "active_contract": {
@@ -170,6 +170,10 @@
       {
         "timestamp": "2025-09-29T19:38:23.628Z",
         "insight": "SESSION SAVE: Test Infrastructure Modernization Contract COMPLETE with documentation reality alignment. Phase 0 achieved 90%+ test failure reduction (43→2-4 flaky, 97-99% pass rate). All command syntax modernized across tests and docs. Bootstrap self-validation proven: methodology successfully fixed its own tests AND documentation. CLAUDE.md updated (10 locations): 76→147 tests, todo-sync→session sync. Added Pattern #18 (Documentation Divergence Detection) and Anti-Pattern #20 (Outdated Docs). External users protected from outdated commands. Ready for contract graduation consideration."
+      },
+      {
+        "timestamp": "2025-09-29T20:06:35.151Z",
+        "insight": "SESSION SAVE: README Modernization Complete - Three-phase documentation overhaul: (1) Deleted 6 obsolete files including outdated demos and generated artifacts (367 lines removed). (2) Added comprehensive universal workflow example showing complete 7-step CTDD process using generic API handler refactoring (225 lines, avoids self-referential confusion). (3) Major streamlining removed all legacy workflow content - deleted spec.json format, agent protocol, orchestrator examples, consolidated three getting-started sections into one. Result: 855→537 lines (37% reduction, 318 lines removed) while improving clarity. README now has ONE clear path: Key Differentiators → Complete Example → Getting Started → Modern commands only. External users protected from legacy confusion. Focus Card contracts emphasized throughout. Repository documentation now professional and accessible for external adoption."
       }
     ],
     "context_budget": {
