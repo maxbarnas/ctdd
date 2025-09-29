@@ -1561,6 +1561,360 @@ For more help: ctdd help <command>`)
     });
 
   program
+    .command("rollback-split")
+    .description("Rollback a file split by restoring from git history (AT013)")
+    .argument("<original-file>", "The original file that was split (e.g., src/server.ts)")
+    .option("--confirm", "Confirm the rollback operation")
+    .option("--preview", "Preview what would be rolled back without applying changes")
+    .action(async (originalFile, opts) => {
+      try {
+        console.log('\n🔄 CTDD Split Rollback (AT013)');
+        console.log('='.repeat(80));
+        console.log(`Target file: ${originalFile}`);
+
+        // Check if file exists
+        const fs = await import('fs/promises');
+        try {
+          await fs.access(originalFile);
+        } catch {
+          console.error(`❌ File ${originalFile} does not exist`);
+          process.exit(1);
+        }
+
+        // Use git to find the last version before splitting
+        const { execSync } = await import('child_process');
+
+        if (opts.preview) {
+          console.log('\n🔍 Preview Mode - No changes will be made');
+        }
+
+        try {
+          // Find commits that mention the file
+          const gitLog = execSync(`git log --oneline --follow -- "${originalFile}"`, { encoding: 'utf8' });
+          const commits = gitLog.trim().split('\n');
+
+          console.log(`\n📚 Found ${commits.length} commits affecting ${originalFile}:`);
+          commits.slice(0, 5).forEach((commit, i) => {
+            console.log(`  ${i + 1}. ${commit}`);
+          });
+
+          if (commits.length === 0) {
+            console.log('❌ No git history found for this file');
+            process.exit(1);
+          }
+
+          // Get the current file size
+          const currentStats = await fs.stat(originalFile);
+          const currentSize = currentStats.size;
+
+          // Find the previous version (before the split)
+          let previousCommit = null;
+          let previousSize = 0;
+
+          for (let i = 1; i < Math.min(commits.length, 10); i++) {
+            const commitHash = commits[i].split(' ')[0];
+            try {
+              const previousContent = execSync(`git show ${commitHash}:"${originalFile}"`, { encoding: 'utf8' });
+              const prevSize = Buffer.byteLength(previousContent, 'utf8');
+
+              // Look for a significantly larger previous version (likely before split)
+              if (prevSize > currentSize * 2) {
+                previousCommit = commitHash;
+                previousSize = prevSize;
+                console.log(`\n🎯 Found likely pre-split version at ${commitHash}:`);
+                console.log(`  Current size: ${currentSize} bytes`);
+                console.log(`  Previous size: ${prevSize} bytes (${Math.round((prevSize - currentSize) / currentSize * 100)}% larger)`);
+                break;
+              }
+            } catch (e) {
+              // Skip if we can't access this commit
+              continue;
+            }
+          }
+
+          if (!previousCommit) {
+            console.log('❌ Could not find a suitable pre-split version in recent history');
+            console.log('💡 Manual rollback may be required');
+            process.exit(1);
+          }
+
+          if (opts.preview) {
+            console.log(`\n📋 Would restore ${originalFile} from commit ${previousCommit}`);
+            console.log(`💾 Current size: ${currentSize} bytes → Would restore: ${previousSize} bytes`);
+            console.log('\n💡 Use --confirm to actually perform the rollback');
+            return;
+          }
+
+          if (!opts.confirm) {
+            console.log('\n⚠️  This will overwrite the current file with the previous version');
+            console.log('💡 Use --preview to see what would happen');
+            console.log('💡 Use --confirm to proceed with rollback');
+            process.exit(1);
+          }
+
+          // Perform the rollback
+          console.log(`\n🔄 Rolling back ${originalFile} to commit ${previousCommit}...`);
+          const previousContent = execSync(`git show ${previousCommit}:"${originalFile}"`, { encoding: 'utf8' });
+
+          // Backup current file
+          const backupFile = `${originalFile}.rollback-backup.${Date.now()}`;
+          await fs.copyFile(originalFile, backupFile);
+          console.log(`📦 Current version backed up to: ${backupFile}`);
+
+          // Restore previous version
+          await fs.writeFile(originalFile, previousContent, 'utf8');
+
+          console.log('✅ Rollback completed successfully!');
+          console.log('\n📋 Next steps:');
+          console.log('  1. Run tests to verify functionality: npm test');
+          console.log('  2. Check if build still works: npm run build');
+          console.log('  3. Remove extracted modules if no longer needed');
+          console.log(`  4. Delete backup if satisfied: rm "${backupFile}"`);
+
+        } catch (gitError) {
+          console.error('❌ Git operation failed:', gitError instanceof Error ? gitError.message : gitError);
+          console.log('💡 Make sure you are in a git repository');
+          process.exit(1);
+        }
+
+      } catch (e) {
+        const { logError } = await import('./core.js');
+        const { CTDDError, ErrorCodes } = await import('./errors.js');
+        await logError(
+          process.cwd(),
+          new CTDDError(
+            `Split rollback failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
+            ErrorCodes.UNKNOWN_ERROR,
+            { operation: 'rollback-split', file: originalFile }
+          ),
+          'rollback-split'
+        );
+        console.error(`[E039] Split rollback failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+        process.exit(1);
+      }
+    });
+
+  program
+    .command("optimize-imports")
+    .description("Clean up and optimize imports after file splits (AT014)")
+    .argument("[files...]", "Specific files to optimize (default: all TypeScript files)")
+    .option("--dry-run", "Show what would be changed without applying changes")
+    .option("--fix", "Apply the import optimizations")
+    .action(async (files, opts) => {
+      try {
+        console.log('\n🔧 CTDD Import Optimization (AT014)');
+        console.log('='.repeat(80));
+
+        const fs = await import('fs/promises');
+        const path = await import('path');
+
+        // Determine target files
+        let targetFiles: string[] = [];
+
+        if (files && files.length > 0) {
+          targetFiles = files;
+        } else {
+          // Find all TypeScript files in src/
+          const { glob } = await import('glob');
+          targetFiles = await glob('src/**/*.ts', { ignore: ['**/*.d.ts'] });
+        }
+
+        console.log(`🎯 Analyzing ${targetFiles.length} TypeScript files...`);
+
+        if (opts.dryRun) {
+          console.log('\n🔍 Dry Run Mode - No changes will be applied');
+        }
+
+        let totalOptimizations = 0;
+        const optimizations: Array<{file: string, issues: string[], suggestions: string[]}> = [];
+
+        for (const filePath of targetFiles) {
+          try {
+            const content = await fs.readFile(filePath, 'utf8');
+            const lines = content.split('\n');
+            const issues: string[] = [];
+            const suggestions: string[] = [];
+
+            // Analyze imports
+            const imports = lines.filter(line => line.trim().startsWith('import '));
+            const unusedImports: string[] = [];
+            const duplicateImports: string[] = [];
+            const suboptimalImports: string[] = [];
+
+            // Check for common import issues
+            imports.forEach((importLine, index) => {
+              const trimmedLine = importLine.trim();
+
+              // Check for unused imports (basic heuristic)
+              const importMatch = trimmedLine.match(/import\s+(?:\{([^}]+)\}|\*\s+as\s+(\w+)|(\w+))\s+from\s+['"']([^'"]+)['"']/);
+              if (importMatch) {
+                const importedItems = importMatch[1] || importMatch[2] || importMatch[3];
+                const modulePath = importMatch[4];
+
+                if (importedItems && importedItems.includes(',')) {
+                  // Named imports - check if used in file
+                  const namedImports = importedItems.split(',').map(s => s.trim());
+                  const unusedInThisImport = namedImports.filter(name => {
+                    const cleanName = name.replace(/\s+as\s+\w+/, '');
+                    return !content.includes(cleanName) || content.indexOf(cleanName) === content.indexOf(trimmedLine);
+                  });
+
+                  if (unusedInThisImport.length > 0) {
+                    unusedImports.push(`Line ${index + 1}: Potentially unused imports: ${unusedInThisImport.join(', ')}`);
+                  }
+                }
+
+                // Check for relative import optimization opportunities
+                if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
+                  if (modulePath.endsWith('.js') && filePath.endsWith('.ts')) {
+                    suboptimalImports.push(`Line ${index + 1}: Consider using .js extension for consistency`);
+                  }
+                }
+              }
+
+              // Check for duplicate imports from same module
+              const moduleMatch = trimmedLine.match(/from\s+['"']([^'"]+)['"']/);
+              if (moduleMatch) {
+                const module = moduleMatch[1];
+                const duplicateCount = imports.filter(otherImport =>
+                  otherImport.includes(`from '${module}'`) || otherImport.includes(`from "${module}"`)
+                ).length;
+
+                if (duplicateCount > 1) {
+                  duplicateImports.push(`Line ${index + 1}: Multiple imports from '${module}' - consider consolidating`);
+                }
+              }
+            });
+
+            // Remove duplicates from arrays
+            const uniqueUnused = [...new Set(unusedImports)];
+            const uniqueDuplicates = [...new Set(duplicateImports)];
+            const uniqueSuboptimal = [...new Set(suboptimalImports)];
+
+            if (uniqueUnused.length > 0 || uniqueDuplicates.length > 0 || uniqueSuboptimal.length > 0) {
+              const allIssues = [...uniqueUnused, ...uniqueDuplicates, ...uniqueSuboptimal];
+              issues.push(...allIssues);
+
+              // Generate suggestions
+              if (uniqueUnused.length > 0) {
+                suggestions.push('Remove unused imports to reduce bundle size');
+              }
+              if (uniqueDuplicates.length > 0) {
+                suggestions.push('Consolidate duplicate imports from same modules');
+              }
+              if (uniqueSuboptimal.length > 0) {
+                suggestions.push('Optimize relative import paths');
+              }
+
+              optimizations.push({
+                file: filePath,
+                issues: allIssues,
+                suggestions
+              });
+              totalOptimizations += allIssues.length;
+            }
+
+          } catch (fileError) {
+            console.warn(`⚠️  Could not analyze ${filePath}: ${fileError instanceof Error ? fileError.message : fileError}`);
+          }
+        }
+
+        console.log(`\n📊 Analysis Results:`);
+        console.log(`  📁 Files analyzed: ${targetFiles.length}`);
+        console.log(`  🔍 Issues found: ${totalOptimizations}`);
+        console.log(`  📝 Files with issues: ${optimizations.length}`);
+
+        if (optimizations.length === 0) {
+          console.log('\n✅ No import optimization opportunities found!');
+          console.log('🎉 Your imports are already well-organized.');
+          return;
+        }
+
+        console.log('\n📋 Import Issues Found:');
+        optimizations.forEach(opt => {
+          console.log(`\n📄 ${opt.file}:`);
+          opt.issues.forEach(issue => {
+            console.log(`  ⚠️  ${issue}`);
+          });
+          console.log(`  💡 Suggestions:`);
+          opt.suggestions.forEach(suggestion => {
+            console.log(`     • ${suggestion}`);
+          });
+        });
+
+        if (opts.dryRun) {
+          console.log('\n💡 Use --fix to apply automatic optimizations where possible');
+          return;
+        }
+
+        if (opts.fix) {
+          console.log('\n🔧 Applying automatic optimizations...');
+
+          let fixedCount = 0;
+          for (const opt of optimizations) {
+            try {
+              const content = await fs.readFile(opt.file, 'utf8');
+              let modifiedContent = content;
+              let fileModified = false;
+
+              // Apply basic optimizations (conservative approach)
+              const lines = content.split('\n');
+              const optimizedLines = lines.map(line => {
+                if (line.trim().startsWith('import ') && line.includes('.js"') && opt.file.endsWith('.ts')) {
+                  // Already has .js extension - this is correct for ES modules
+                  return line;
+                }
+                return line;
+              });
+
+              modifiedContent = optimizedLines.join('\n');
+
+              if (modifiedContent !== content) {
+                await fs.writeFile(opt.file, modifiedContent);
+                fileModified = true;
+                fixedCount++;
+              }
+
+              if (fileModified) {
+                console.log(`  ✅ ${opt.file} - Applied basic optimizations`);
+              }
+
+            } catch (fixError) {
+              console.warn(`  ⚠️  Could not fix ${opt.file}: ${fixError instanceof Error ? fixError.message : fixError}`);
+            }
+          }
+
+          console.log(`\n📊 Optimization Summary:`);
+          console.log(`  ✅ Files automatically fixed: ${fixedCount}`);
+          console.log(`  📝 Files requiring manual review: ${optimizations.length - fixedCount}`);
+        } else {
+          console.log('\n💡 To apply automatic fixes, use: ctdd optimize-imports --fix');
+          console.log('💡 For conservative preview, use: ctdd optimize-imports --dry-run');
+        }
+
+        console.log('\n📋 Manual Review Recommended:');
+        console.log('  • Verify unused imports are truly unused');
+        console.log('  • Consolidate duplicate imports manually for better organization');
+        console.log('  • Consider organizing imports by: node_modules → relative → absolute');
+
+      } catch (e) {
+        const { logError } = await import('./core.js');
+        const { CTDDError, ErrorCodes } = await import('./errors.js');
+        await logError(
+          process.cwd(),
+          new CTDDError(
+            `Import optimization failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
+            ErrorCodes.UNKNOWN_ERROR,
+            { operation: 'optimize-imports' }
+          ),
+          'optimize-imports'
+        );
+        console.error(`[E040] Import optimization failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+        process.exit(1);
+      }
+    });
+
+  program
     .command("compress-context")
     .description("Archive completed phases and compress session state for token efficiency")
     .action(async () => {

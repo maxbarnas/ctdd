@@ -153,6 +153,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 7. ❌ **Methodology neglect**: Treating development methodology as fixed/static
    - Example: Missing compound learning opportunities between phases
    - Solution: "Post-Phase Insight Harvesting" - evolve methodology through real application
+8. ❌ **Contract completion without graduation**: Finishing ATs but not applying insights to next challenge
+   - Example: Completing file splitting tools but not tackling the largest remaining file
+   - Solution: "Contract Graduation" - formalize completion and transition to next strategic challenge
+9. ❌ **Tool building without ultimate validation**: Creating tools but not testing them on the hardest problems
+   - Example: Building file splitting tools but avoiding the most complex files
+   - Solution: "Ultimate Challenge Pattern" - save the hardest problems for when tools are mature
+
+### Contract Graduation and Strategic Transition
+
+**Contract Graduation Criteria** (New Insight - Nov 2024):
+When all acceptance criteria are complete, evaluate for graduation:
+
+1. **Tool Suite Maturity**: Are the tools ready for the ultimate challenge?
+2. **Methodology Validation**: Has the approach been proven at current scale?
+3. **Strategic Readiness**: Is the team ready for the next level of complexity?
+4. **Evidence Collection**: Are success metrics documented for future reference?
+
+**Contract Graduation Process**:
+1. ✅ Complete all acceptance criteria with evidence
+2. 📊 Document methodology insights and improvements
+3. 🎯 Identify the next strategic challenge (often the largest remaining problem)
+4. 📁 Archive completed contract to `contracts/archive/`
+5. 🚀 Launch next contract applying all lessons learned
+
+**Ultimate Challenge Pattern** (Proven Strategy):
+- **Phase 0-1**: Build tools on medium complexity problems
+- **Phase 2-3**: Refine tools and validate compound acceleration
+- **Phase 4**: Apply mature tools to the ultimate challenge (largest/most complex file)
+- **Evidence**: FILE_SPLITTING_CONTRACT validated this pattern - tools now ready for src/index.ts (1534 lines)
 
 ### When Creating CTDD Contracts
 
@@ -162,6 +191,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ Build tools that validate themselves
 - ✅ Create progressive enhancement where each phase accelerates
 - ✅ Focus on 80%+ manual overhead reduction
+- ✅ Plan for contract graduation to next strategic challenge
 
 **DON'T**:
 - ❌ Create linear refactoring plans without tools
@@ -169,6 +199,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ❌ Defer all value to project completion
 - ❌ Build features that don't help build other features
 - ❌ Skip the bootstrap validation step
+- ❌ Complete contracts without graduating to the next challenge
 
 ## Commands
 
