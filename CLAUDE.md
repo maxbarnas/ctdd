@@ -2,6 +2,109 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## CTDD Bootstrap Methodology (CRITICAL - READ FIRST)
+
+**CTDD (Context Test-Driven Development) follows a bootstrap principle: "tool helps build tool"**
+
+### Core Principles
+
+1. **Bootstrap Approach**: Every feature you build should help build the next feature faster
+   - Phase 0: Emergency quick wins (50%+ overhead reduction in hours, not days)
+   - Progressive enhancement: Each phase accelerates the next
+   - Tool-assisted development: Build commands that help implement commands
+
+2. **Value Over Technical Purity**:
+   - **High-impact, low-effort** features first
+   - **Working solution today > perfect solution someday**
+   - Measure success in **time saved**, not just technical metrics
+   - Every feature must answer: "Does this help build the next feature?"
+
+3. **Contracts Must Include**:
+   - **Focus Card** with versioned ID (FC-XXX-001)
+   - **Invariants** emphasizing velocity increase (I1: Development velocity must increase)
+   - **Phase 0** for immediate relief (emergency quick wins)
+   - **Time measurements** comparing manual vs tool-assisted approach
+   - **Self-validation** mechanisms (tools check their own progress)
+
+4. **Success Metrics**:
+   - **Manual overhead reduction**: Target 80%+ reduction
+   - **Development velocity**: Must increase with each phase
+   - **Immediate value**: Each phase delivers value within hours
+   - **Bootstrap validation**: Tools must help build themselves
+
+### Contract Structure Template
+
+```markdown
+## Focus Card (FC-FEATURE-001)
+- **FC-ID**: FC-FEATURE-001 (versioned)
+- **Goal**: [Include "tool-assisted" and efficiency focus]
+- **Deliverables**: [Tools and automation, not just features]
+- **Constraints**: [Each phase must accelerate the next]
+- **Non-goals**: [No complex automation before quick wins]
+
+## Invariants
+- **I1**: Development velocity must increase with each phase
+- **I2**: Manual overhead must decrease by 80%+
+- **I3**: Each tool feature provides immediate value
+- **I4**: Bootstrap principle: tools help build tools
+
+## Phase 0: Emergency Quick Wins (Day 1)
+[Immediate 50%+ overhead reduction]
+
+## Phase 1: Tool-Assisted Implementation
+[Use Phase 0 tools to build Phase 1 faster]
+
+## Success Metrics
+- Manual approach: X hours
+- Tool-assisted: Y hours (80%+ reduction)
+```
+
+### Proven Patterns (From Successful CTDD Contracts)
+
+1. **Context Preservation Crisis → Solution**:
+   - Problem: 252 lines of context (4x over budget)
+   - Solution: Simple archival + one-command compression
+   - Result: 75% token reduction in 2 hours
+   - Lesson: Simple solutions win
+
+2. **Tool-Assisted Development Bootstrap**:
+   - Phase 0: Basic AT validation (15 min → 30 sec)
+   - Phase 1: Enhanced validation using Phase 0 tools
+   - Phase 2: Session automation using Phase 1 tools
+   - Result: 98% manual overhead reduction
+   - Lesson: Tool helps build tool
+
+3. **File Splitting (Updated with Bootstrap)**:
+   - Phase 0: SLOC analysis tools (30 min → 5 sec)
+   - Phase 1: Auto-splitting using Phase 0 analysis
+   - Phase 2: Self-improving splits using Phase 1 patterns
+   - Result: 15 hours → 5.5 hours (63% reduction)
+   - Lesson: Automation accelerates itself
+
+### Anti-Patterns to Avoid
+
+1. ❌ **Waterfall approach**: Sequential phases without feedback loops
+2. ❌ **Technical purity over value**: SLOC limits without efficiency gains
+3. ❌ **Deferred benefits**: All value at the end vs progressive delivery
+4. ❌ **External validation only**: Not building self-checking mechanisms
+5. ❌ **Complex automation first**: Over-engineering before quick wins
+
+### When Creating CTDD Contracts
+
+**DO**:
+- ✅ Start with Phase 0 emergency relief
+- ✅ Measure time saved, not just technical metrics
+- ✅ Build tools that validate themselves
+- ✅ Create progressive enhancement where each phase accelerates
+- ✅ Focus on 80%+ manual overhead reduction
+
+**DON'T**:
+- ❌ Create linear refactoring plans without tools
+- ❌ Focus only on code quality metrics
+- ❌ Defer all value to project completion
+- ❌ Build features that don't help build other features
+- ❌ Skip the bootstrap validation step
+
 ## Commands
 
 ### Build and Development
