@@ -12,41 +12,12 @@ import { fileURLToPath } from "url";
 import { z } from "zod";
 import { CTDDError, ErrorCodes, SpecNotFoundError, withErrorContext, createErrorLogEntry, ErrorLogEntry } from "./errors.js";
 import { safeJsonParse, validateNoCircularReferences } from './validation.js';
+import { CTDD_DIR, SPEC_FILE, STATE_FILE, LOG_DIR, PassFail } from "./core/constants.js";
+import { FocusCardSchema, InvariantSchema, CutSchema, SpecSchema, FocusCard, Invariant, Cut, Spec } from "./schemas/spec.js";
 
-export const CTDD_DIR = ".ctdd";
-export const SPEC_FILE = "spec.json";
-export const STATE_FILE = "state.json";
-export const LOG_DIR = "logs";
-
-export type PassFail = "PASS" | "FAIL" | "SKIP";
-
-export const FocusCardSchema = z.object({
-  focus_card_id: z.string(),
-  title: z.string(),
-  goal: z.string(),
-  deliverables: z.array(z.string()).default([]),
-  constraints: z.array(z.string()).default([]),
-  non_goals: z.array(z.string()).default([]),
-  sources_of_truth: z.array(z.string()).default([]),
-  token_budget: z.number().optional()
-});
-
-export const InvariantSchema = z.object({
-  id: z.string(),
-  text: z.string()
-});
-
-export const CutSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-  examples: z.array(z.string()).optional()
-});
-
-export const SpecSchema = z.object({
-  focus_card: FocusCardSchema,
-  invariants: z.array(InvariantSchema),
-  cuts: z.array(CutSchema)
-});
+// Re-export for other modules that import from core
+export { CTDD_DIR, SPEC_FILE, STATE_FILE, LOG_DIR, PassFail } from "./core/constants.js";
+export { FocusCardSchema, InvariantSchema, CutSchema, SpecSchema, FocusCard, Invariant, Cut, Spec } from "./schemas/spec.js";
 
 // Schema versioning support
 export const SCHEMA_VERSION = "1.0.0";
@@ -58,10 +29,6 @@ export const VersionedSpecSchema = z.object({
   cuts: z.array(CutSchema)
 });
 
-export type FocusCard = z.infer<typeof FocusCardSchema>;
-export type Invariant = z.infer<typeof InvariantSchema>;
-export type Cut = z.infer<typeof CutSchema>;
-export type Spec = z.infer<typeof SpecSchema>;
 
 export const PreResponseSchema = z.object({
   commit_id: z.string(),
