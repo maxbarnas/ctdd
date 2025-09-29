@@ -19,36 +19,12 @@ This repo provides:
 - Cheap validation using static checks and natural-language acceptance criteria
 - Tiny per-iteration token overhead
 
-## 🚀 Methodology Breakthrough: Evidence-Based Testing Intelligence
+## 🎯 Key Differentiators
 
-CTDD has evolved beyond basic context management into a **mature methodology** with **proven 95%+ reduction capabilities** through evidence-based testing intelligence:
-
-### 🎯 **Core Breakthrough**: Smart Test Prioritization
-Instead of manually fixing failing tests, CTDD's **evidence-based testing intelligence** analyzes failure patterns and achieves **90%+ overhead reduction** through intelligent categorization:
-
-```bash
-# Analyze code complexity and identify testing priorities
-npx ctdd test-intel risk-assess
-
-# Analyze actual command behavior patterns
-npx ctdd test-intel behavior-analyze
-
-# Compare risk assessment vs current test coverage
-npx ctdd test-intel gap-analyze
-```
-
-### 📊 **Proven Track Record**
-- **Bootstrap Self-Validation**: Methodology successfully improved itself
-- **17 Proven Patterns**: Documented approaches achieving consistent 95%+ reductions
-- **Evidence-Based Approach**: Objective analysis prevents wasted effort on non-issues
-- **Zero-Wander Resumption**: Context recovery in <30 seconds vs 5-10 minutes
-
-### 🏆 **Real-World Validation**
-Recently applied to 41 test failures:
-- **Traditional approach**: 20+ hours manual test fixing
-- **Evidence-based approach**: 1 hour intelligent analysis (95% reduction)
-- **Result**: 90% were cosmetic format expectations, not functional issues
-- **Outcome**: Repository functionally ready with professional UX improvements
+- **95%+ reduction capability**: Evidence-based methodology achieving consistent results
+- **Bootstrap self-validation**: Methodology successfully improved itself, proving it works at scale
+- **Zero-wander resumption**: Context recovery in <30 seconds vs 5-10 minutes
+- **Tool-assisted acceleration**: Each phase builds tools that make the next phase faster
 
 ---
 
@@ -288,95 +264,37 @@ Node.js 18+ is required.
 
 ---
 
-## Quick Start
+## Getting Started
 
-### For External Projects (Recommended)
-
-Navigate to your existing project and apply CTDD methodology:
+### 1. Initialize CTDD in Your Project
 
 ```bash
-# Navigate to your project with technical debt
-cd your-existing-project
-
-# Initialize CTDD for evidence-based development
+cd your-project
 npx ctdd init
-
-# Analyze your codebase for improvement opportunities
-npx ctdd test-intel risk-assess
-
-# Check current project health
-npx ctdd status --verbose
-
-# Validate your setup
-npx ctdd validate
 ```
 
-### Current CTDD Methodology (Focus Card Contracts)
-
-CTDD has evolved beyond the traditional pre/post workflow. The current methodology uses **Focus Card contracts** with evidence-based development:
-
-1. **Create Focus Card contract** (contracts/YOUR_CONTRACT.md) with:
-   - Focus Card (FC-ID, Goal, Deliverables, Constraints)
-   - Invariants (I1-IX)
-   - Acceptance Criteria (AT001, AT002, etc.)
-
-2. **Apply evidence-based testing intelligence**:
-```bash
-npx ctdd test-intel risk-assess           # Identify priority areas
-npx ctdd test-intel behavior-analyze      # Analyze command patterns
-npx ctdd test-intel gap-analyze           # Compare risk vs coverage
-```
-
-3. **Track progress with session management**:
-```bash
-npx ctdd check-at --all                   # Validate all acceptance criteria
-npx ctdd update-session --complete AT001  # Record completion
-npx ctdd session resume --verbose         # Instant context recovery
-```
-
-### Legacy CTDD Workflow (Traditional)
-
-The traditional pre/post workflow is still supported for backward compatibility:
+### 2. Discover Problems with Evidence-Based Assessment
 
 ```bash
-# Generate traditional CTDD prompts (uses .ctdd/spec.json format)
-npx ctdd pre > .ctdd/pre_prompt.txt
-npx ctdd post --artifact .ctdd/artifact.txt > .ctdd/post_prompt.txt
-
-# Validate and record responses
-npx ctdd validate-pre .ctdd/pre_response.json
-npx ctdd record-pre .ctdd/pre_response.json
+npx ctdd test-intel risk-assess    # Find high-risk areas
+npx ctdd status --verbose          # Check project health
 ```
 
-## 🌟 Getting Started for External Projects
+### 3. Create Focus Card Contract
 
-### Step 1: Apply CTDD to Your Project
-CTDD works on any codebase with technical debt or complex refactoring needs:
+Create `contracts/YOUR_CONTRACT.md` following the structure shown in the [Complete Example](#-complete-example-refactoring-a-monolithic-file) above:
+- Focus Card (FC-ID, Goal, Deliverables, Constraints)
+- Invariants (I1-IX that must hold)
+- Acceptance Criteria (AT001, AT002, etc. with phases)
 
-```bash
-# Navigate to your project
-cd your-existing-project
+### 4. Execute with Tool-Assisted Development
 
-# Initialize CTDD
-npx ctdd init
-
-# Analyze your codebase for improvement opportunities
-npx ctdd test-intel risk-assess
-```
-
-### Step 2: Identify Your Ultimate Challenge
-- **Large files** (1000+ lines) with high complexity scores
-- **Technical debt** areas identified by risk assessment
-- **Complex refactoring** that's been deferred due to difficulty
-
-### Step 3: Apply Proven Patterns
-- Start with **Phase 0** emergency relief (quick wins)
-- Use **evidence-based assessment** instead of assumptions
-- Focus on **95%+ reduction targets** through systematic approach
-- Apply **bootstrap principle**: each tool helps build the next tool
-
-### Success Pattern
-External users report **consistent 90%+ overhead reduction** when applying CTDD methodology to their most challenging technical debt problems.
+Follow the 7-step workflow from the Complete Example:
+- **Build Phase 0 tools** for analysis and automation
+- **Use tools to accelerate** Phase 1+ implementation
+- **Track progress**: `npx ctdd check-at --all`
+- **Handle context loss**: `npx ctdd session resume --verbose`
+- **Graduate contract** when complete and move to next challenge
 
 ---
 
@@ -384,101 +302,13 @@ External users report **consistent 90%+ overhead reduction** when applying CTDD 
 
 Everything lives under `.ctdd/`:
 
-- `spec.json` — your Focus Card, Invariants, and Acceptance Criteria
-- `state.json` — last pre/post responses and history pointer
+- `session-state.json` — current focus, completed ATs, insights, and resumption context
+- `spec.json` — Focus Card, Invariants, and Acceptance Criteria (if using traditional workflow)
 - `logs/` — timestamped event JSON logs
 - `plugins/` — optional plugin JSON files for static checks
+- `validation/` — custom validation scripts for project-specific acceptance criteria
 
 ---
-
-## Spec Structure
-
-The spec is compact and ID'ed. `ctdd init` creates a sample you can edit.
-
-```json
-{
-  "focus_card": {
-    "focus_card_id": "FC-001",
-    "title": "Refactor CSV-to-JSON CLI",
-    "goal": "Create a robust CLI to convert CSV to JSON with schema validation.",
-    "deliverables": ["cli.ts", "README.md", "schema.json"],
-    "constraints": ["Node 18+", "No network calls", "Pure TypeScript"],
-    "non_goals": ["Web UI", "Database integration"],
-    "sources_of_truth": ["schema.json", "README examples"],
-    "token_budget": 2000
-  },
-  "invariants": [
-    { "id": "I1", "text": "CLI must run on Node 18+." },
-    { "id": "I2", "text": "No network calls allowed." },
-    {
-      "id": "I3",
-      "text": "Input via file path or stdin; output to stdout by default."
-    },
-    {
-      "id": "I4",
-      "text": "Validation must use schema.json; fail with nonzero exit."
-    },
-    { "id": "I5", "text": "TypeScript only; no external transpilers." },
-    { "id": "I6", "text": "README examples must be runnable as shown." }
-  ],
-  "cuts": [
-    {
-      "id": "AT1",
-      "text": "Given sample.csv, running `node cli.js sample.csv` emits valid JSON to stdout."
-    },
-    {
-      "id": "AT2",
-      "text": "Invalid rows trigger exit code != 0 and print a single-line error."
-    },
-    {
-      "id": "AT3",
-      "text": "`cat sample.csv | node cli.js` produces the same output as AT1."
-    },
-    {
-      "id": "AT4",
-      "text": "README quickstart command exactly matches the implemented CLI flags."
-    }
-  ]
-}
-```
-
-`commit_id` is computed as a short hash of this spec core:
-`CTDD:<focus_card_id>@<hash7>`. If the agent’s response echoes a different
-commit, you should fail-fast and reconcile.
-
----
-
-## 🎯 Advanced Capabilities
-
-### Session Management & Zero-Wander Resumption
-CTDD includes sophisticated session management that eliminates context waste:
-
-```bash
-# Instant context recovery (<30 seconds vs 5-10 minutes manual)
-npx ctdd session resume --verbose
-
-# Quick session status and next actions
-npx ctdd session summary
-
-# Automated session state updates (no manual JSON editing)
-npx ctdd session update --complete AT001
-
-# Context budget management and optimization
-npx ctdd session budget --analyze
-```
-
-### Bootstrap Self-Validation
-The methodology **proves itself** by successfully improving its own development:
-- **Tool-assisted development**: CTDD tools accelerate building more CTDD tools
-- **Evidence-based assessment**: Methodology objectively evaluates its own effectiveness
-- **Meta-learning loop**: Each successful contract improves future contract execution
-- **Compound acceleration**: 95%+ reduction targets consistently achieved through methodology maturity
-
-### Professional Development Integration
-- **Zero manual overhead**: All bookkeeping automated through CLI commands
-- **Evidence-based priorities**: Risk assessment prevents wasted effort on non-issues
-- **Behavioral testing**: Focus on functionality over implementation details
-- **Contract graduation**: Systematic progression from quick wins to ultimate challenges
 
 ## CLI Reference
 
@@ -516,101 +346,23 @@ The methodology **proves itself** by successfully improving its own development:
 - `ctdd validate`
   Validate project setup and suggest fixes for common issues.
 
-### Legacy Commands (Traditional CTDD)
-
-- `ctdd pre [--out <file>]`
-  Generate Pre Self-Test prompt (uses .ctdd/spec.json format).
-
-- `ctdd post [--artifact <file>] [--out <file>]`
-  Generate Post-Test prompt with optional artifact summary.
-
-- `ctdd validate-pre <file>`  
-  Validate agent Pre JSON against schema.
-
-- `ctdd validate-post <file>`  
-  Validate agent Post JSON against schema.
-
-- `ctdd record-pre <file>`  
-  Record agent Pre JSON (appends to logs, updates state).
-
-- `ctdd record-post <file> [--with-checks]`  
-  Record agent Post JSON. With `--with-checks`, runs plugins and merges results
-  into `post_check`.
-
-- `ctdd delta <delta.json>`  
-  Apply a delta to invariants/CUTs and bump `commit_id`.
-
-- `ctdd checks [--json]`  
+- `ctdd checks [--json]`
   Run plugin checks under `.ctdd/plugins/`.
+
+- `ctdd delta <delta.json>`
+  Apply a delta to invariants/CUTs and bump `commit_id`.
 
 ---
 
 ## HTTP Server
 
-Start:
+Start an HTTP server for programmatic access:
 
 ```bash
 npx ctdd serve --port 4848
 ```
 
-Endpoints:
-- `GET /health` → `{ ok: true }`
-- `POST /init` → `{ ok: true, commit_id }` (same as `ctdd init`)
-- `GET /status` → `{ ok: true, commit_id, spec, state }`
-- `GET /pre-prompt` → text/plain prompt
-- `POST /post-prompt` body: `{ "artifact": "..." }` → text/plain prompt
-- `POST /pre-response` body: Pre JSON → `{ ok: true, commit_id }`
-- `POST /post-response` body: Post JSON → `{ ok: true, commit_id, plugin_checks }`
-- `GET /checks` → `{ ok: true, checks: [...] }`
-- `POST /delta` body: delta JSON → `{ ok: true, commit_id }`
-
-All JSON bodies must match schemas below and echo the current `commit_id`.
-
----
-
-## Agent Protocol
-
-Pre Self-Test prompt asks the agent to return:
-
-```json
-{
-  "commit_id": "CTDD:FC-001@abcdef1",
-  "self_check": [{ "id": "I1", "status": "PASS" }],
-  "target_cuts": ["AT1", "AT3"],
-  "plan_step": "Implement CLI arg parsing and stdin handling.",
-  "risks": ["Schema validation may require a library."],
-  "questions": ["May I use Ajv as a dev dependency?"]
-}
-```
-
-Post-Test prompt asks the agent to return:
-
-```json
-{
-  "commit_id": "CTDD:FC-001@abcdef1",
-  "post_check": [
-    { "id": "AT1", "status": "PASS", "evidence": "Manual run OK" },
-    {
-      "id": "AT2",
-      "status": "FAIL",
-      "evidence": "Exit code 0 on invalid input"
-    }
-  ],
-  "deltas": [
-    {
-      "type": "modify",
-      "target": "README.md",
-      "reason": "Align flags in quickstart"
-    }
-  ],
-  "next": "Wire schema.json validation and nonzero exit on invalid rows."
-}
-```
-
-Commit discipline:
-- The agent must echo the exact `commit_id` from your prompt.
-- If mismatched: stop, regenerate prompts from your current spec, or apply a
-  delta then continue.
+The server provides a RESTful API for CTDD operations. See the `/health` endpoint to verify the server is running. Full API documentation available in the server's built-in UI at `/ui`.
 
 ---
 
@@ -633,9 +385,7 @@ npx ctdd checks
 npx ctdd checks --json
 ```
 
-When using:
-- CLI: `ctdd record-post ... --with-checks` merges results into `post_check`
-- Server: `/post-response` automatically merges plugin results
+Plugins validate acceptance criteria automatically when using `ctdd check-at` commands or can be run independently with `ctdd checks`.
 
 ### Plugin Schemas
 
@@ -764,91 +514,24 @@ This supports:
 
 ---
 
-## Prompts Produced By CTDD
-
-Pre Self-Test prompt outlines:
-- Commit
-- Goal, Deliverables, Constraints, Non-goals
-- Invariants and CUTs (IDs and text)
-- Required JSON shape for the agent’s Pre response
-
-Post-Test prompt outlines:
-- Commit
-- Invariant and CUT IDs under review
-- Optional artifact summary you pass in
-- Required JSON shape for the Post response
-
-Both prompts are designed to be short and stable per step.
-
----
-
-## Minimal Orchestrator Example (Node)
-
-```ts
-import { execFile } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
-import { promisify } from "node:util";
-const exec = promisify(execFile);
-
-async function run() {
-  // 1) Pre prompt
-  const { stdout: prePrompt } = await exec("npx", ["ctdd", "pre"]);
-  // Send prePrompt to your LLM, capture JSON-only response
-  // await writeFile(".ctdd/pre_response.json", preResp);
-
-  // 2) Record pre
-  // await exec("npx", ["ctdd", "validate-pre", ".ctdd/pre_response.json"]);
-  // await exec("npx", ["ctdd", "record-pre", ".ctdd/pre_response.json"]);
-
-  // 3) Agent acts in your pipeline...
-
-  // 4) Post prompt with artifact summary
-  await writeFile(".ctdd/artifact.txt", "Updated cli.ts; README flags added.");
-  const { stdout: postPrompt } = await exec("npx", [
-    "ctdd",
-    "post",
-    "--artifact",
-    ".ctdd/artifact.txt"
-  ]);
-  // Send postPrompt to LLM, capture JSON-only response
-  // await writeFile(".ctdd/post_response.json", postResp);
-
-  // 5) Record post with plugin checks
-  // await exec("npx", ["ctdd", "validate-post", ".ctdd/post_response.json"]);
-  // await exec(
-  //   "npx",
-  //   ["ctdd", "record-post", ".ctdd/post_response.json", "--with-checks"]
-  // );
-}
-
-run().catch(console.error);
-```
-
----
-
 ## Troubleshooting
 
-- Commit mismatch error  
-  Regenerate prompts (`ctdd pre` / `ctdd post`) or apply your delta first.
+- **Session state not updating**: Ensure you're using `npx ctdd update-session` commands instead of manually editing `.ctdd/session-state.json`.
 
-- Validation failure on agent JSON  
-  Ensure the agent returns JSON only, with required fields and IDs.
+- **Context loss without recovery**: Run `npx ctdd session resume --verbose` to get complete resumption context in <30 seconds.
 
-- Invalid plugin regex  
-  Double-escape backslashes in JSON patterns, e.g. `"fetch\\("`.
+- **Invalid plugin regex**: Double-escape backslashes in JSON patterns, e.g. `"fetch\\("`.
 
-- Server 400s  
-  Check request bodies match schemas and that `.ctdd/spec.json` exists.
+- **Missing validation evidence**: Use `npx ctdd check-at --all --deep` for comprehensive validation with detailed evidence.
 
 ---
 
 ## Notes
 
-- Keep the spec small and stable. Favor adding CUTs with short IDs over verbose
-  histories.
-- Use plugins for cheap, deterministic checks (grep, file_exists). Keep them
-  O(filesize) per loop.
-- The agent should cite targeted invariant/CUT IDs in responses to reinforce
-  focus.
+- **Focus Card contracts** are the modern approach. Keep them in `contracts/` directory.
+- Use **Phase 0 tools** to accelerate later phases (bootstrap principle).
+- **Session management** (`session resume`, `session update`) eliminates manual state tracking.
+- Cite **AT IDs** in all work to maintain traceability and focus.
+- **Graduate contracts** when complete - archive and move to next challenge.
 
 Happy shipping!
