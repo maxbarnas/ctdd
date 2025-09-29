@@ -52,7 +52,16 @@ This file provides guidance to Claude Code when working with this CTDD project.
    - Update session-state.json with progress and insights
    - Document resumption instructions and next actions
 
-4. **Session State Management** (CRITICAL for Context Preservation):
+4. **Post-Phase Insight Harvesting** (CRITICAL for Methodology Evolution):
+   - **Pause and Reflect**: "Think deeply whether there are any new insights after this phase"
+   - **Extract Methodology Learnings**: What worked? What failed? What patterns emerged?
+   - **Update Living Documentation**: Add insights to CLAUDE.md and templates immediately
+   - **Identify Anti-Patterns**: Document what NOT to do for future phases/projects
+   - **Meta-Learning Loop**: Use CTDD to improve CTDD itself
+   - **Bootstrap Self-Validation**: Did our tools help us validate our own progress?
+   - **Compound Methodology Gains**: How will these insights accelerate future work?
+
+5. **Session State Management** (CRITICAL for Context Preservation):
    ```json
    {
      "current_phase": "Current phase description",
@@ -102,6 +111,9 @@ This file provides guidance to Claude Code when working with this CTDD project.
 6. ❌ **Incomplete loops**: Building tools without completing the original problem
    - Example: Extract code but don't integrate/reduce original file
    - Solution: "Complete the Loop" - use your tools to solve your actual problem
+7. ❌ **Methodology neglect**: Treating development methodology as fixed/static
+   - Example: Missing compound learning opportunities between phases
+   - Solution: "Post-Phase Insight Harvesting" - evolve methodology through real application
 
 ### When Creating CTDD Contracts
 

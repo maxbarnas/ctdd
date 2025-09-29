@@ -91,6 +91,7 @@ ctdd validate-split --dry-run         # Check if split is safe
 - Each split validates both extraction AND integration using AT007 verification
 - Tools learn from each split to improve suggestions
 - **New**: Track original file reduction, not just new file creation
+- **Post-Phase Insight Harvesting**: Pause after each phase to extract methodology learnings and update CTDD documentation
 
 ### Target Splits (Tool-Assisted)
 
@@ -278,5 +279,6 @@ This contract incorporates proven patterns:
 4. **Progressive Enhancement**: Each phase accelerates the next
 5. **Self-Validation**: Tools validate their own success
 6. **High-Impact First**: Start with 14x oversized index.ts
+7. **Post-Phase Insight Harvesting**: Extract methodology learnings after each phase to evolve CTDD itself
 
 **Commit**: CTDD:FC-SPLIT-002@v2-bootstrap
