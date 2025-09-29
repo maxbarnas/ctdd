@@ -106,7 +106,7 @@ node dist/index.js session resume --verbose
 
 ## Invariants (Always Check Before/After)
 - **I1**: Development velocity must increase with each phase (measured)
-- **I2**: All existing functionality preserved (76/76 tests passing)
+- **I2**: All existing functionality preserved (147 tests, 97-99% passing)
 - **I3**: Manual overhead must decrease by 80%+ (timed evidence)
 - **I4**: Bootstrap principle: tools help build tools (demonstrable)
 - **I5**: Context preservation: seamless resumption across sessions
@@ -240,9 +240,17 @@ node dist/index.js session resume --verbose
 17. **Contract Graduation for Testing (Strategic Value Maximization)**:
    - Problem: Pursuing 100% test coverage vs strategic value delivery
    - Insight: Graduate when core objectives met and methodology breakthroughs achieved
-   - Evidence: 76/76 critical tests passing, methodology breakthrough > fixing cosmetic issues
+   - Evidence: 147 tests with 97-99% pass rate, methodology breakthrough > fixing cosmetic issues
    - Result: Move to next strategic challenge vs diminishing returns
    - Lesson: Test contracts should focus on functionality and methodology, not metrics
+
+18. **Documentation-Implementation Divergence Detection (Quality Assurance)**:
+   - Problem: Documentation and tests drift from implementation as commands evolve
+   - Insight: Test failures can reveal documentation debt, not just code bugs
+   - Evidence: 43 test failures were 100% documentation-reality mismatches (command syntax, output format)
+   - Discovery: Same divergence found in user-facing docs (CLAUDE.md had outdated commands)
+   - Solution: "Test-Driven Documentation" - use failing tests as documentation archaeology
+   - Lesson: When tests fail systematically, check if documentation also diverged
 
 ### Anti-Patterns to Avoid
 
@@ -277,7 +285,7 @@ node dist/index.js session resume --verbose
    - Solution: "Complexity Revelation Analysis" - document what extraction reveals
 14. ❌ **Manual Session State Management**: Wasting context on manual JSON updates instead of using tools
    - Example: Manually editing session-state.json instead of using ctdd update-session
-   - Solution: Use built tools (ctdd update-session, ctdd todo-sync) for all state management
+   - Solution: Use built tools (ctdd update-session, ctdd session sync) for all state management
 
 15. ❌ **Assumption-Based Testing Priorities**: Testing based on file size or speculation
    - Example: Assuming 1627-line file needs extensive testing without evidence
@@ -298,6 +306,11 @@ node dist/index.js session resume --verbose
 19. ❌ **Pursuing Test Metrics Over Value**: Chasing 100% coverage vs strategic functionality
    - Example: Fixing cosmetic test failures instead of graduating to next challenge
    - Solution: Focus on functional validation and methodology breakthroughs
+
+20. ❌ **Outdated Documentation Commands**: User-facing docs drift as CLI evolves
+   - Example: CLAUDE.md showed `todo-sync --save` when reality is `session sync --from-todos`
+   - Solution: Use test failures as signal to audit all documentation for same divergence
+   - Prevention: When fixing systematic test failures, grep docs for same outdated patterns
 
 ### Contract Graduation and Strategic Transition
 
@@ -489,7 +502,7 @@ CTDD (Context Test-Driven Development) is a lightweight framework for guiding LL
 - File paths in plugins are relative to project root
 - Commit IDs follow format: `CTDD:<focus_card_id>@<hash7>`
 - Error handling uses structured E001-E999 error codes with actionable messages
-- Comprehensive test suite with 76 tests (100% coverage on error handling)
+- Comprehensive test suite with 147 tests (97-99% pass rate, full coverage on critical systems)
 
 ## Project-Specific Customization
 
@@ -574,9 +587,9 @@ ctdd phase-status
 ctdd update-session --complete AT##
 
 # Todo synchronization - ESSENTIAL FOR CONTEXT PRESERVATION
-ctdd todo-sync --save    # Persist current todos
-ctdd todo-sync --load    # Restore todos
-ctdd todo-sync --status  # Check todo-AT sync
+ctdd session sync --from-todos  # Sync from TodoWrite to CTDD state
+ctdd session sync --to-todos    # Sync from CTDD state to TodoWrite
+ctdd session sync --auto        # Auto-detect and sync bidirectionally
 
 # Context compression when needed
 ctdd compress-context
@@ -605,7 +618,7 @@ ctdd init --full         # Complete CTDD setup for new projects
 - AT validation: `ctdd check-at --all` (2.4 seconds - 94% faster!)
 - Deep validation: `ctdd check-at --all --deep` (45 seconds - when comprehensive testing needed)
 - Session updates: `ctdd update-session --complete AT##` (5 seconds)
-- Todo sync: `ctdd todo-sync --save/--load` (10 seconds)
+- Todo sync: `ctdd session sync --from-todos/--to-todos/--auto` (10 seconds)
 
 ### CTDD Contract Management
 
@@ -648,8 +661,8 @@ mv contracts/COMPLETED_CONTRACT.md contracts/archive/
    ctdd check-at --all         # Lightning-fast AT validation (2.4s vs 15min)
    ctdd check-at --all --deep  # Comprehensive validation when needed (45s)
    ctdd phase-status          # Project progress dashboard
-   ctdd todo-sync --status    # Todo synchronization status
-   npm test                   # Should show 76/76 tests passing
+   ctdd session sync --auto   # Todo synchronization (auto-detect changes)
+   npm test                   # Should show 143-145/147 tests passing (97-99%)
    npm run build             # Should complete in ~2 seconds
    ```
 
@@ -676,5 +689,5 @@ mv contracts/COMPLETED_CONTRACT.md contracts/archive/
 
 **IMPORTANT: When significant work is completed:**
 - Use `ctdd update-session --complete AT##` instead of manual editing
-- Use `ctdd todo-sync --save` to persist todo state
+- Use `ctdd session sync --from-todos` to persist todo state
 - Use `ctdd check-at --all` to validate progress
