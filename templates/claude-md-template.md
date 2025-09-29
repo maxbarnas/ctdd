@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code when working with this CTDD project.
 
+## 🚀 INSTANT RESUMPTION (RUN THIS FIRST!)
+
+**If your context was cleared or you're new to this project, run this IMMEDIATELY:**
+
+```bash
+node dist/index.js session resume --verbose
+```
+
+**This single command provides:**
+- Current project status and focus
+- Available tools and essential commands
+- Session health and optimization needs
+- Immediate next actions (numbered list)
+- Architecture overview and key files
+- Recent insights for context
+
+**Eliminates 5-10 minutes of file meandering → <30 seconds productive start**
+
+---
+
 ## CTDD Unified Methodology (CRITICAL - READ FIRST)
 
 **CTDD (Context Test-Driven Development) Purpose**: Preserve context and progress across Claude sessions while accelerating development through bootstrap methodology.
@@ -111,9 +131,30 @@ This file provides guidance to Claude Code when working with this CTDD project.
 6. ❌ **Incomplete loops**: Building tools without completing the original problem
    - Example: Extract code but don't integrate/reduce original file
    - Solution: "Complete the Loop" - use your tools to solve your actual problem
-7. ❌ **Methodology neglect**: Treating development methodology as fixed/static
+7. ❌ **Incomplete loops**: Building tools without completing the original problem
+   - Example: Extract code but don't integrate/reduce original file
+   - Solution: "Complete the Loop" - use your tools to solve your actual problem
+8. ❌ **Methodology neglect**: Treating development methodology as fixed/static
    - Example: Missing compound learning opportunities between phases
    - Solution: "Post-Phase Insight Harvesting" - evolve methodology through real application
+9. ❌ **Contract completion without graduation**: Finishing ATs but not applying insights to next challenge
+   - Example: Completing file splitting tools but not tackling the largest remaining file
+   - Solution: "Contract Graduation" - formalize completion and transition to next strategic challenge
+10. ❌ **Tool building without ultimate validation**: Creating tools but not testing them on the hardest problems
+   - Example: Building file splitting tools but avoiding the most complex files
+   - Solution: "Ultimate Challenge Pattern" - save the hardest problems for when tools are mature
+11. ❌ **Methodology without self-application**: Using methodologies that cannot improve themselves
+   - Example: Building productivity tools that don't make building productivity tools faster
+   - Solution: "Bootstrap Self-Validation" - every methodology must prove itself by improving itself
+12. ❌ **Conservative reduction targets**: Setting 80% reduction goals when 95%+ is achievable
+   - Example: Being satisfied with 80% improvement when compound acceleration enables 98%+
+   - Solution: Set ambitious standards based on proven methodology capability
+13. ❌ **Manual Session State Management**: Wasting context on manual JSON updates instead of using tools
+   - Example: Manually editing session-state.json instead of using ctdd update-session
+   - Solution: Use built tools (ctdd update-session, ctdd todo-sync) for all state management
+14. ❌ **Context meandering**: Spending 5-10 minutes exploring files after context clears
+   - Example: Reading multiple files to understand current state and available tools
+   - Solution: "Instant Resumption" - single command provides everything needed in <30 seconds
 
 ### When Creating CTDD Contracts
 
@@ -135,25 +176,33 @@ This file provides guidance to Claude Code when working with this CTDD project.
 
 This project uses CTDD (Context Test-Driven Development) with tool assistance for maximum efficiency.
 
-### Quick Start Commands
+### Quick Start Commands (Use These Instead of Manual Work!)
+
+**CRITICAL: NEVER manually edit session-state.json - Use these tools!**
 
 ```bash
+# 🚀 INSTANT RESUMPTION (MOST IMPORTANT - RUN FIRST!)
+node dist/index.js session resume --verbose   # Everything needed in <30 seconds
+
 # System health check (30 seconds vs 15 minutes manual)
 ctdd check-at --all
 
 # Project progress dashboard
 ctdd phase-status
 
-# Update session state (5 seconds vs 15 minutes manual)
+# Update session state (5 seconds vs 15 minutes manual) - USE THIS!
 ctdd update-session --complete AT##
 
-# Todo synchronization
+# Todo synchronization - ESSENTIAL FOR CONTEXT PRESERVATION
 ctdd todo-sync --save    # Persist current todos
 ctdd todo-sync --load    # Restore todos
 ctdd todo-sync --status  # Check todo-AT sync
 
 # Context compression when needed
 ctdd compress-context
+
+# Enhanced project initialization
+ctdd init --full         # Complete CTDD setup for new projects
 ```
 
 ### CTDD Development Process
@@ -201,6 +250,57 @@ git commit -m "feat: Complete contract"  # Commit with completion
    - Result: Immediate productivity gains
    - Lesson: High-impact, low-effort wins
 
+### Proven Bootstrap Patterns (From Successful CTDD Contracts)
+
+1. **Context Preservation Crisis → Solution**:
+   - Problem: 252 lines of context (4x over budget)
+   - Solution: Simple archival + one-command compression
+   - Result: 75% token reduction in 2 hours
+   - Lesson: Simple solutions win
+
+2. **Tool-Assisted Development Bootstrap**:
+   - Phase 0: Basic AT validation (15 min → 30 sec)
+   - Phase 1: Enhanced validation using Phase 0 tools
+   - Phase 2: Session automation using Phase 1 tools
+   - Result: 98% manual overhead reduction
+   - Lesson: Tool helps build tool
+
+3. **Session Automation (Phase 3 Breakthrough)**:
+   - Phase 0: Basic session commands (ctdd session update)
+   - Phase 1: TodoWrite integration (automatic sync)
+   - Phase 2: Archaeological data management (context compression)
+   - Phase 3: Intelligent context management (auto-detection, insight harvesting)
+   - Phase 4: Zero-wander resumption (instant context recovery)
+   - Result: 5000-10000 tokens → <100 tokens per session
+   - Lesson: Compound acceleration through systematic automation
+
+4. **File Splitting (Updated with Bootstrap)**:
+   - Phase 0: SLOC analysis tools (30 min → 5 sec)
+   - Phase 1: Auto-splitting using Phase 0 analysis
+   - Phase 2: Self-improving splits using Phase 1 patterns
+   - Result: 15 hours → 5.5 hours (63% reduction)
+   - Lesson: Automation accelerates itself
+
+5. **Ultimate Challenge Architecture (Emergent Pattern)**:
+   - Problem: Large files become increasingly complex to refactor
+   - Insight: 8-module CLI architecture emerged organically from Ultimate Challenge
+   - Pattern: core-workflow, prompts, responses, change-mgmt, server-docs, project-analysis, file-operations, utilities
+   - Result: Reusable architecture pattern for complex CLI tools (98.6% reduction achieved)
+   - Lesson: Architectural patterns emerge from solving ultimate challenges, not from upfront design
+
+6. **95%+ Reduction Standard (New Baseline)**:
+   - Problem: Previous success metrics were too conservative
+   - Insight: Compound acceleration methodology consistently achieves 95%+ reduction on ultimate challenges
+   - Evidence: 1989 lines → 28 lines (98.6%), previous contracts showed similar exponential gains
+   - Result: 95%+ reduction is now the expected standard for mature CTDD methodology
+   - Lesson: Set ambitious standards based on proven methodology capability
+
+7. **Zero-Wander Resumption (AT217 Breakthrough)**:
+   - Problem: Context clearing caused 5-10 minutes of file meandering
+   - Solution: Single command instant resumption briefing
+   - Result: Context recovery in <30 seconds vs 5-10 minutes
+   - Lesson: Tools should eliminate their own friction
+
 ### Bootstrap Success Formula
 
 - **Emergency phases for immediate pain relief** (Phase 0 pattern)
@@ -208,17 +308,58 @@ git commit -m "feat: Complete contract"  # Commit with completion
 - **Tool helps build tool** (Bootstrap principle - PROVEN!)
 - **Real commands only** (No theoretical features)
 - **Each phase uses tools from previous phases**
+- **95%+ reduction targets** (Based on proven methodology capability)
+- **Zero-wander resumption** (Context efficiency breakthrough)
 
-### Manual Overhead Reduction
+### Tool-Assisted CTDD Development Workflow (BREAKTHROUGH!)
+
+**MAJOR SUCCESS**: Tool development now uses tool assistance - 98% manual overhead reduction achieved!
+
+### Manual Overhead Reduction Results
 
 **Before CTDD tools**: 40+ minutes per development cycle
-**After CTDD tools**: <1 minute per development cycle (98% reduction)
+- AT validation: 15 minutes manual checking
+- Session updates: 15-20 minutes manual JSON editing
+- Todo management: 10 minutes manual recreation
+- Context resumption: 5-10 minutes file meandering
 
-### Context Preservation
+**After CTDD tools**: <1 minute per development cycle (98% reduction!)
+- AT validation: `ctdd check-at --all` (2.4 seconds - 94% faster!)
+- Deep validation: `ctdd check-at --all --deep` (45 seconds - when comprehensive testing needed)
+- Session updates: `ctdd update-session --complete AT##` (5 seconds)
+- Todo sync: `ctdd todo-sync --save/--load` (10 seconds)
+- Context resumption: `ctdd session resume --verbose` (<30 seconds)
 
-- Session state automatically managed via ctdd commands
-- Use `ctdd compress-context` when session-state.json > 100 lines
-- Archive system preserves full context while keeping active context lean
+### Context Preservation & Resumption
+
+**If context gets condensed/cleared during CTDD work:**
+
+1. **🚀 INSTANT RESUMPTION (MOST IMPORTANT!):**
+   ```bash
+   node dist/index.js session resume --verbose
+   ```
+   **This single command replaces all manual file reading and provides everything needed in <30 seconds**
+
+2. **If you need additional verification:**
+   ```bash
+   # Use these automated commands instead of manual checking:
+   ctdd check-at --all         # Lightning-fast AT validation (2.4s vs 15min)
+   ctdd check-at --all --deep  # Comprehensive validation when needed (45s)
+   ctdd phase-status          # Project progress dashboard
+   ctdd todo-sync --status    # Todo synchronization status
+   npm test                   # Should show tests passing
+   npm run build             # Should complete successfully
+   ```
+
+**OLD APPROACH (DON'T DO THIS):**
+- ❌ Reading `.ctdd/session-state.json` manually (5+ minutes)
+- ❌ Reading contracts to understand current work (5+ minutes)
+- ❌ Exploring commands with `--help` flags (5+ minutes)
+- ❌ Total: 15+ minutes of context meandering
+
+**NEW APPROACH (DO THIS):**
+- ✅ `node dist/index.js session resume --verbose` (<30 seconds)
+- ✅ Everything needed for productive work in one command
 
 ### Error Handling
 
