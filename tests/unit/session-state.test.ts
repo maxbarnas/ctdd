@@ -31,7 +31,7 @@ describe('Session State Management (AT004)', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('SESSION SUMMARY');
+      expect(stdout).toContain('Session Summary');
     });
 
     it('should handle corrupted session state JSON', async () => {
@@ -44,7 +44,7 @@ describe('Session State Management (AT004)', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('SESSION SUMMARY');
+      expect(stdout).toContain('Session Summary');
     });
 
     it('should load valid session state correctly', async () => {

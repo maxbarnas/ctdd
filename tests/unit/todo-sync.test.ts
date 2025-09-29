@@ -26,12 +26,12 @@ describe('Todo Synchronization (AT005)', () => {
     it('should detect AT patterns in todo content', async () => {
       // Test todo sync with AT detection
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('todo sync'); // Should acknowledge sync operation
+      expect(stdout).toContain('Sync'); // Should acknowledge sync operation
     });
 
     it('should handle various AT ID formats', async () => {
@@ -47,7 +47,7 @@ describe('Todo Synchronization (AT005)', () => {
       // Simulate todos with different AT patterns
       for (const todo of testCases) {
         const { stderr } = await execAsync(
-          `node "${CLI_PATH}" session sync --status`,
+          `node "${CLI_PATH}" session sync --auto`,
           { cwd: testEnv.tempDir }
         );
         expect(stderr).toBe('');
@@ -58,12 +58,12 @@ describe('Todo Synchronization (AT005)', () => {
       const complexTodo = 'Complete AT001, AT002, and AT003 for Phase 1 implementation';
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
     });
   });
 
@@ -77,12 +77,12 @@ describe('Todo Synchronization (AT005)', () => {
 
       // Simulate todo sync operation
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
 
       // Verify state was updated
       const { stdout: summary } = await execAsync(
@@ -102,7 +102,7 @@ describe('Todo Synchronization (AT005)', () => {
 
       for (const { status, expected } of testCases) {
         const { stderr } = await execAsync(
-          `node "${CLI_PATH}" session sync --status`,
+          `node "${CLI_PATH}" session sync --auto`,
           { cwd: testEnv.tempDir }
         );
         expect(stderr).toBe('');
@@ -118,7 +118,7 @@ describe('Todo Synchronization (AT005)', () => {
 
       // Simulate conflict resolution
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session resolve --auto`,
+        `node "${CLI_PATH}" session resolve --prefer-ctdd`,
         { cwd: testEnv.tempDir }
       );
 
@@ -131,7 +131,7 @@ describe('Todo Synchronization (AT005)', () => {
     it('should save and load todo state reliably', async () => {
       // Save current todo state
       const { stdout: saveResult, stderr: saveError } = await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
@@ -139,7 +139,7 @@ describe('Todo Synchronization (AT005)', () => {
 
       // Load todo state
       const { stdout: loadResult, stderr: loadError } = await execAsync(
-        `node "${CLI_PATH}" session sync --load`,
+        `node "${CLI_PATH}" session sync --to-todos`,
         { cwd: testEnv.tempDir }
       );
 
@@ -149,29 +149,29 @@ describe('Todo Synchronization (AT005)', () => {
     it('should handle missing todo data gracefully', async () => {
       // Try to load when no todo data exists
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --load`,
+        `node "${CLI_PATH}" session sync --to-todos`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync'); // Should handle gracefully
+      expect(stdout).toContain('Sync'); // Should handle gracefully
     });
 
     it('should validate todo data integrity', async () => {
       // Save valid state
       await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
       // Verify data integrity
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
     });
   });
 
@@ -184,12 +184,12 @@ describe('Todo Synchronization (AT005)', () => {
       );
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
     });
 
     it('should detect orphaned ATs', async () => {
@@ -200,7 +200,7 @@ describe('Todo Synchronization (AT005)', () => {
       );
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
@@ -211,12 +211,12 @@ describe('Todo Synchronization (AT005)', () => {
     it('should detect orphaned todos', async () => {
       // This would detect todos referencing ATs not in session state
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
     });
   });
 
@@ -236,7 +236,7 @@ describe('Todo Synchronization (AT005)', () => {
 
       // Perform bulk sync
       await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
@@ -250,9 +250,9 @@ describe('Todo Synchronization (AT005)', () => {
     it('should maintain consistency during bulk operations', async () => {
       // Perform multiple sync operations
       const operations = [
-        'session sync --save',
-        'session sync --load',
-        'session sync --status'
+        'session sync --from-todos',
+        'session sync --to-todos',
+        'session sync --auto'
       ];
 
       for (const op of operations) {
@@ -271,18 +271,18 @@ describe('Todo Synchronization (AT005)', () => {
       await testEnv.writeFile('.ctdd/todo-sync.json', '{ invalid json }');
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync'); // Should recover gracefully
+      expect(stdout).toContain('Sync'); // Should recover gracefully
     });
 
     it('should handle todo sync failures gracefully', async () => {
       // Simulate sync failure scenario
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --load`,
+        `node "${CLI_PATH}" session sync --to-todos`,
         { cwd: testEnv.tempDir }
       );
 
@@ -312,24 +312,24 @@ describe('Todo Synchronization (AT005)', () => {
 
       // Sync should reflect the change
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session sync --status`,
+        `node "${CLI_PATH}" session sync --auto`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('sync');
+      expect(stdout).toContain('Sync');
     });
 
     it('should support context preservation workflow', async () => {
       // Save current state
       await execAsync(
-        `node "${CLI_PATH}" session sync --save`,
+        `node "${CLI_PATH}" session sync --from-todos`,
         { cwd: testEnv.tempDir }
       );
 
       // Simulate context loss and recovery
       await execAsync(
-        `node "${CLI_PATH}" session sync --load`,
+        `node "${CLI_PATH}" session sync --to-todos`,
         { cwd: testEnv.tempDir }
       );
 

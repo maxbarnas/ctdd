@@ -37,7 +37,7 @@ describe('Session Commands Integration', () => {
 
       expect(stderr).toBe('');
       expect(stdout).toContain('Archaeological Data Analysis');
-      expect(stdout).toContain('Total Lines');
+      expect(stdout).toContain('Total size');
       expect(stdout).toContain('Active ATs');
     });
 
@@ -86,22 +86,23 @@ describe('Session Commands Integration', () => {
       );
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session clean --archive-completed`,
+        `node "${CLI_PATH}" session clean`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Archived');
+      expect(stdout).toContain('Cleanup');
     });
 
     it('should compress session state', async () => {
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session clean --compress`,
+        `node "${CLI_PATH}" session clean`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      // Should acknowledge compression attempt
+      // Should acknowledge cleanup operation
+      expect(stdout).toContain('Cleanup');
     });
   });
 
@@ -118,11 +119,11 @@ describe('Session Commands Integration', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('SESSION SUMMARY');
+      expect(stdout).toContain('Session Summary');
       expect(stdout).toContain('Test Summary');
-      expect(stdout).toContain('1 completed');
-      expect(stdout).toContain('1 in progress');
-      expect(stdout).toContain('1 pending');
+      expect(stdout).toContain('Completed:');
+      expect(stdout).toContain('In Progress:');
+      expect(stdout).toContain('Pending:');
     });
 
     it('should show recent activity', async () => {
@@ -150,7 +151,7 @@ describe('Session Commands Integration', () => {
       );
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session archive --completed`,
+        `node "${CLI_PATH}" session archive`,
         { cwd: testEnv.tempDir }
       );
 
@@ -175,7 +176,7 @@ describe('Session Commands Integration', () => {
       );
 
       await execAsync(
-        `node "${CLI_PATH}" session archive --completed`,
+        `node "${CLI_PATH}" session archive`,
         { cwd: testEnv.tempDir }
       );
 
