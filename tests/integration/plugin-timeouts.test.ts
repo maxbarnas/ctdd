@@ -159,7 +159,7 @@ describe('Plugin Timeout Handling', () => {
       expect(results).toHaveLength(1);
       expect(results[0].status).toBe('FAIL');
       expect(results[0].id).toBe('MISSING_FILE_CHECK');
-      expect(results[0].evidence).toContain('exists=false');
+      expect(results[0].evidence).toContain('File does not exist');
     });
 
     it('should handle unknown plugin types gracefully', async () => {
