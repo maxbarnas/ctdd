@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚀 INSTANT RESUMPTION (RUN THIS FIRST!)
+
+**If your context was cleared or you're new to this project, run this IMMEDIATELY:**
+
+```bash
+node dist/index.js session resume --verbose
+```
+
+**This single command provides:**
+- Current project status and focus
+- Available tools and essential commands
+- Session health and optimization needs
+- Immediate next actions (numbered list)
+- Architecture overview and key files
+- Recent insights for context
+
+**Eliminates 5-10 minutes of file meandering → <30 seconds productive start**
+
+---
+
 ## CTDD Unified Methodology (CRITICAL - READ FIRST)
 
 **CTDD (Context Test-Driven Development) Purpose**: Preserve context and progress across Claude sessions while accelerating development through bootstrap methodology.
@@ -480,6 +500,9 @@ The tool automatically reads from your project's `.ctdd/spec.json`:
 **CRITICAL: NEVER manually edit session-state.json - Use these tools!**
 
 ```bash
+# 🚀 INSTANT RESUMPTION (MOST IMPORTANT - RUN FIRST!)
+node dist/index.js session resume --verbose   # Everything needed in <30 seconds
+
 # System health check (30 seconds vs 15 minutes manual)
 ctdd check-at --all
 
@@ -552,11 +575,13 @@ mv contracts/COMPLETED_CONTRACT.md contracts/archive/
 
 **If context gets condensed/cleared during CTDD work:**
 
-1. **Read resumption files first:**
-   - `.ctdd/session-state.json` - SINGLE SOURCE OF TRUTH for progress (now auto-managed!)
-   - `contracts/CTDD_IMPLEMENTATION_CONTRACT.md` - Full project context
+1. **🚀 INSTANT RESUMPTION (MOST IMPORTANT!):**
+   ```bash
+   node dist/index.js session resume --verbose
+   ```
+   **This single command replaces all manual file reading and provides everything needed in <30 seconds**
 
-2. **Verify current state using tool commands:**
+2. **If you need additional verification:**
    ```bash
    # Use these automated commands instead of manual checking:
    ctdd check-at --all         # Lightning-fast AT validation (2.4s vs 15min)
@@ -566,6 +591,16 @@ mv contracts/COMPLETED_CONTRACT.md contracts/archive/
    npm test                   # Should show 76/76 tests passing
    npm run build             # Should complete in ~2 seconds
    ```
+
+**OLD APPROACH (DON'T DO THIS):**
+- ❌ Reading `.ctdd/session-state.json` manually (5+ minutes)
+- ❌ Reading contracts to understand current work (5+ minutes)
+- ❌ Exploring commands with `--help` flags (5+ minutes)
+- ❌ Total: 15+ minutes of context meandering
+
+**NEW APPROACH (DO THIS):**
+- ✅ `node dist/index.js session resume --verbose` (<30 seconds)
+- ✅ Everything needed for productive work in one command
 
 3. **Current status (POST-BOOTSTRAP SUCCESS):**
    - ✅ Phase 1 & 2 COMPLETED (Testing + Error Handling)
