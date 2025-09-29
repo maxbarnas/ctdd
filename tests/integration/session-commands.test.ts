@@ -73,7 +73,7 @@ describe('Session Commands Integration', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('recommendations');
+      expect(stdout).toContain('Archaeological Issues');
     });
   });
 
@@ -156,7 +156,7 @@ describe('Session Commands Integration', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Archived');
+      expect(stdout).toContain('Archive complete');
     });
 
     it('should reduce session size', async () => {
@@ -195,7 +195,7 @@ describe('Session Commands Integration', () => {
   describe('Session Migration Command', () => {
     it('should migrate session format', async () => {
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session migrate --to-latest`,
+        `node "${CLI_PATH}" session migrate`,
         { cwd: testEnv.tempDir }
       );
 
@@ -211,7 +211,7 @@ describe('Session Commands Integration', () => {
       );
 
       await execAsync(
-        `node "${CLI_PATH}" session migrate --to-latest`,
+        `node "${CLI_PATH}" session migrate`,
         { cwd: testEnv.tempDir }
       );
 
@@ -230,12 +230,12 @@ describe('Session Commands Integration', () => {
   describe('Session Detect Command', () => {
     it('should auto-detect AT completion from code changes', async () => {
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session detect --scan`,
+        `node "${CLI_PATH}" session detect --all`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('detect');
+      expect(stdout).toContain('Auto-Detection');
     });
 
     it('should suggest AT updates based on file changes', async () => {
@@ -243,24 +243,25 @@ describe('Session Commands Integration', () => {
       await testEnv.writeFile('test-completion.js', '// AT001 implementation complete');
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session detect --suggest`,
+        `node "${CLI_PATH}" session detect --all`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      // Should analyze file changes and suggest updates
+      // Should analyze file changes
+      expect(stdout).toContain('Auto-Detection');
     });
   });
 
   describe('Session Harvest Command', () => {
     it('should harvest insights from commits', async () => {
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session harvest --from-commits`,
+        `node "${CLI_PATH}" session harvest`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('harvest');
+      expect(stdout).toContain('Insight Harvesting');
     });
 
     it('should extract insights from session data', async () => {
@@ -279,12 +280,12 @@ describe('Session Commands Integration', () => {
       }
 
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session harvest --extract-patterns`,
+        `node "${CLI_PATH}" session harvest`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('harvest');
+      expect(stdout).toContain('Insight Harvesting');
     });
   });
 
@@ -306,12 +307,12 @@ describe('Session Commands Integration', () => {
 
     it('should generate detailed briefing', async () => {
       const { stdout, stderr } = await execAsync(
-        `node "${CLI_PATH}" session brief --format detailed`,
+        `node "${CLI_PATH}" session brief --format full`,
         { cwd: testEnv.tempDir }
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('CTDD PROJECT BRIEFING');
+      expect(stdout).toContain('Resumption Brief');
     });
   });
 

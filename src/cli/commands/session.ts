@@ -132,9 +132,6 @@ export function setupSessionCommands(program: Command) {
     .option("--json", "Output in JSON format")
     .action(async (opts) => {
       try {
-        console.log("🏛️  CTDD Archaeological Data Analysis");
-        console.log("=" + "=".repeat(49));
-
         const projectDir = process.cwd();
         const state = await loadSessionState(projectDir);
 
@@ -143,6 +140,8 @@ export function setupSessionCommands(program: Command) {
         if (opts.json) {
           console.log(JSON.stringify(analysis, null, 2));
         } else {
+          console.log("🏛️  CTDD Archaeological Data Analysis");
+          console.log("=" + "=".repeat(49));
           console.log(`📊 Session State Overview:`);
           console.log(`  Total size: ${analysis.totalLines} lines`);
           console.log(`  Active ATs: ${analysis.activeATs.length} (current contract)`);
@@ -173,13 +172,13 @@ export function setupSessionCommands(program: Command) {
           console.log(`\n🔧 Next Steps:`);
           console.log(`  ctdd session clean --dry-run    # Preview cleanup`);
           console.log(`  ctdd session migrate             # Apply optimizations`);
-        }
 
-        // AT212: Bootstrap principle - analyze our own efficiency
-        console.log(`\n🔄 Bootstrap Self-Analysis:`);
-        console.log(`  This analysis was generated using our own session tools`);
-        console.log(`  Tokens to generate: ~100 vs ~1000 manual analysis`);
-        console.log(`  ✅ Bootstrap principle: Tools improve tools`);
+          // AT212: Bootstrap principle - analyze our own efficiency
+          console.log(`\n🔄 Bootstrap Self-Analysis:`);
+          console.log(`  This analysis was generated using our own session tools`);
+          console.log(`  Tokens to generate: ~100 vs ~1000 manual analysis`);
+          console.log(`  ✅ Bootstrap principle: Tools improve tools`);
+        }
 
       } catch (e) {
         await logError(
