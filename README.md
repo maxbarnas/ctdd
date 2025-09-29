@@ -16,8 +16,7 @@ This repo provides:
 
 - Keeps the agent focused despite context loss or condensation
 - Auditable drift control via commit IDs and deltas
-- Cheap validation using static checks and natural-language acceptance tests
-  (CUTs)
+- Cheap validation using static checks and natural-language acceptance criteria
 - Tiny per-iteration token overhead
 
 ## 🚀 Methodology Breakthrough: Evidence-Based Testing Intelligence
@@ -66,51 +65,62 @@ Node.js 18+ is required.
 
 ## Quick Start
 
-Initialize CTDD in your project (creates `.ctdd/spec.json` and state files):
+### For External Projects (Recommended)
+
+Navigate to your existing project and apply CTDD methodology:
 
 ```bash
+# Navigate to your project with technical debt
+cd your-existing-project
+
+# Initialize CTDD for evidence-based development
 npx ctdd init
+
+# Analyze your codebase for improvement opportunities
+npx ctdd test-intel risk-assess
+
+# Check current project health
+npx ctdd status --verbose
+
+# Validate your setup
+npx ctdd validate
 ```
 
-Show current status:
+### Current CTDD Methodology (Focus Card Contracts)
 
+CTDD has evolved beyond the traditional pre/post workflow. The current methodology uses **Focus Card contracts** with evidence-based development:
+
+1. **Create Focus Card contract** (contracts/YOUR_CONTRACT.md) with:
+   - Focus Card (FC-ID, Goal, Deliverables, Constraints)
+   - Invariants (I1-IX)
+   - Acceptance Criteria (AT001, AT002, etc.)
+
+2. **Apply evidence-based testing intelligence**:
 ```bash
-npx ctdd status
+npx ctdd test-intel risk-assess           # Identify priority areas
+npx ctdd test-intel behavior-analyze      # Analyze command patterns
+npx ctdd test-intel gap-analyze           # Compare risk vs coverage
 ```
 
-Generate a compact Pre Self-Test prompt for your agent:
+3. **Track progress with session management**:
+```bash
+npx ctdd check-at --all                   # Validate all acceptance criteria
+npx ctdd update-session --complete AT001  # Record completion
+npx ctdd session resume --verbose         # Instant context recovery
+```
+
+### Legacy CTDD Workflow (Traditional)
+
+The traditional pre/post workflow is still supported for backward compatibility:
 
 ```bash
+# Generate traditional CTDD prompts (uses .ctdd/spec.json format)
 npx ctdd pre > .ctdd/pre_prompt.txt
-```
+npx ctdd post --artifact .ctdd/artifact.txt > .ctdd/post_prompt.txt
 
-After your agent returns a Pre Self-Test JSON (you save it as
-`.ctdd/pre_response.json`), validate and record:
-
-```bash
+# Validate and record responses
 npx ctdd validate-pre .ctdd/pre_response.json
 npx ctdd record-pre .ctdd/pre_response.json
-```
-
-Generate a Post-Test prompt (optionally include an artifact summary):
-
-```bash
-echo "Produced cli.ts and README.md" > .ctdd/artifact.txt
-npx ctdd post --artifact .ctdd/artifact.txt > .ctdd/post_prompt.txt
-```
-
-Validate, optionally merge plugin checks, and record the Post-Test response:
-
-```bash
-# Save agent post-response JSON as .ctdd/post_response.json
-npx ctdd validate-post .ctdd/post_response.json
-npx ctdd record-post .ctdd/post_response.json --with-checks
-```
-
-Apply a delta to invariants/CUTs (bump commit):
-
-```bash
-npx ctdd delta delta.json
 ```
 
 ## 🌟 Getting Started for External Projects
@@ -149,7 +159,7 @@ External users report **consistent 90%+ overhead reduction** when applying CTDD 
 
 Everything lives under `.ctdd/`:
 
-- `spec.json` — your Focus Card, Invariants, and CUTs
+- `spec.json` — your Focus Card, Invariants, and Acceptance Criteria
 - `state.json` — last pre/post responses and history pointer
 - `logs/` — timestamped event JSON logs
 - `plugins/` — optional plugin JSON files for static checks
@@ -247,20 +257,47 @@ The methodology **proves itself** by successfully improving its own development:
 
 ## CLI Reference
 
-- `ctdd init`  
-  Initialize `.ctdd/spec.json` with a sample spec and set state.
+### Current Methodology Commands
 
-- `ctdd status`  
-  Print commit, title, goal, and last pre/post results.
+- `ctdd test-intel risk-assess [--json]`
+  Analyze code complexity and identify testing priorities with evidence-based intelligence.
 
-- `ctdd hash`  
-  Print the current `commit_id`.
+- `ctdd test-intel behavior-analyze`
+  Analyze actual command behavior patterns for tool-assisted test generation.
 
-- `ctdd pre [--out <file>]`  
-  Emit the Pre Self-Test prompt. Agent should return Pre JSON only.
+- `ctdd test-intel gap-analyze`
+  Compare risk assessment vs current test coverage to prioritize efforts.
 
-- `ctdd post [--artifact <file>] [--out <file>]`  
-  Emit the Post-Test prompt (optional artifact summary lines).
+- `ctdd check-at --all`
+  Validate all acceptance criteria from current Focus Card contract.
+
+- `ctdd check-at <AT_ID>`
+  Validate specific acceptance criteria with detailed evidence.
+
+- `ctdd session resume --verbose`
+  Instant context recovery with current status, next actions, and project health.
+
+- `ctdd update-session --complete <AT_ID>`
+  Record completion of acceptance criteria and update session state.
+
+### Core CTDD Commands
+
+- `ctdd init [--full]`
+  Initialize CTDD project structure. Use `--full` for complete setup with templates.
+
+- `ctdd status [--verbose]`
+  Show current commit and project health. Use `--verbose` for detailed analysis.
+
+- `ctdd validate`
+  Validate project setup and suggest fixes for common issues.
+
+### Legacy Commands (Traditional CTDD)
+
+- `ctdd pre [--out <file>]`
+  Generate Pre Self-Test prompt (uses .ctdd/spec.json format).
+
+- `ctdd post [--artifact <file>] [--out <file>]`
+  Generate Post-Test prompt with optional artifact summary.
 
 - `ctdd validate-pre <file>`  
   Validate agent Pre JSON against schema.
