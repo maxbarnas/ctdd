@@ -12,6 +12,7 @@ import { setupProjectAnalysisCommands } from "./commands/project-analysis.js";
 import { setupFileOperationsCommands } from "./commands/file-operations.js";
 import { setupUtilityCommands } from "./commands/utilities.js";
 import { setupSessionCommands } from "./commands/session.js";
+import { setupTestIntelligenceCommands } from "./commands/test-intelligence.js";
 
 export async function runCLI(): Promise<void> {
   try {
@@ -27,6 +28,7 @@ export async function runCLI(): Promise<void> {
     setupFileOperationsCommands(program);
     setupUtilityCommands(program);
     setupSessionCommands(program);
+    setupTestIntelligenceCommands(program);
 
     await program.parseAsync(process.argv);
   } catch (e) {

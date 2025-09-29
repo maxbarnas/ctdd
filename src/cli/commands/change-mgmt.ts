@@ -99,7 +99,7 @@ export function setupChangeManagementCommands(program: Command) {
         const content = await fsReadFile(file, "utf-8");
         const delta = JSON.parse(content);
         const { newCommitId } = await applyDeltaObject(process.cwd(), delta);
-        console.log(`✅ Delta applied successfully. New commit ID: ${newCommitId}`);
+        console.log(`✅ Applied delta successfully. New commit: ${newCommitId}`);
       } catch (e) {
         await logError(
           process.cwd(),
@@ -125,12 +125,12 @@ export function setupChangeManagementCommands(program: Command) {
     .option("--json", "Output results in JSON format")
     .action(async (opts) => {
       try {
-        console.log("🔍 Running CTDD plugin checks...");
         const results = await runPlugins(process.cwd());
 
         if (opts.json) {
           console.log(JSON.stringify({ checks: results }, null, 2));
         } else {
+          console.log("🔍 Running CTDD plugin checks...");
           console.log("=".repeat(50));
           console.log("🔍 CTDD Plugin Check Results");
           console.log("=".repeat(50));

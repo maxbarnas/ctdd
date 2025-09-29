@@ -29,9 +29,9 @@ export function setupResponseCommands(program: Command) {
         const result = PreResponseSchema.safeParse(data);
 
         if (result.success) {
-          console.log("✅ Pre-response validation successful");
+          console.log("✅ Pre-response validation passed");
         } else {
-          console.log("❌ Pre-response validation failed:");
+          console.log("❌ Pre-response schema validation failed:");
           result.error.issues.forEach((issue, i) => {
             console.log(`  ${i + 1}. ${issue.path.join('.')}: ${issue.message}`);
           });
@@ -63,7 +63,7 @@ export function setupResponseCommands(program: Command) {
         const result = PostResponseSchema.safeParse(data);
 
         if (result.success) {
-          console.log("✅ Post-response validation successful");
+          console.log("✅ Post-response validation passed");
         } else {
           console.log("❌ Post-response validation failed:");
           result.error.issues.forEach((issue, i) => {
@@ -103,7 +103,7 @@ export function setupResponseCommands(program: Command) {
         }
 
         const state = await recordEvent(process.cwd(), "pre", data);
-        console.log(`✅ Pre-response recorded with commit ID: ${state.commit_id}`);
+        console.log(`✅ Recorded pre-response with commit ID: ${state.commit_id}`);
       } catch (e) {
         await logError(
           process.cwd(),
@@ -149,7 +149,7 @@ export function setupResponseCommands(program: Command) {
         }
 
         const state = await recordEvent(process.cwd(), "post", finalData);
-        console.log(`✅ Post-response recorded with commit ID: ${state.commit_id}`);
+        console.log(`✅ Recorded post-response with commit ID: ${state.commit_id}`);
       } catch (e) {
         await logError(
           process.cwd(),

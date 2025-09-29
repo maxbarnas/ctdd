@@ -9,7 +9,7 @@ import {
   renderPostPrompt,
   logError
 } from "../../core.js";
-import { writeFile as fsWriteFile } from "fs/promises";
+import { writeFile as fsWriteFile, readFile as fsReadFile } from "fs/promises";
 import { CTDDError, ErrorCodes } from "../../errors.js";
 
 export function setupPromptCommands(program: Command) {
@@ -29,7 +29,6 @@ export function setupPromptCommands(program: Command) {
 
         if (opts.out) {
           await fsWriteFile(opts.out, prompt, "utf-8");
-          console.log(`Pre-test prompt saved to ${opts.out}`);
         } else {
           console.log(prompt);
         }
@@ -57,11 +56,21 @@ export function setupPromptCommands(program: Command) {
       try {
         const spec = await loadSpec(process.cwd());
         const commitId = computeCommitId(spec);
-        const prompt = renderPostPrompt(spec, commitId, opts.artifact);
+
+        // Read artifact file content if provided
+        let artifactContent: string | undefined;
+        if (opts.artifact) {
+          try {
+            artifactContent = await fsReadFile(opts.artifact, "utf-8");
+          } catch (e) {
+            throw new Error(`Failed to read artifact file: ${opts.artifact}`);
+          }
+        }
+
+        const prompt = renderPostPrompt(spec, commitId, artifactContent);
 
         if (opts.out) {
           await fsWriteFile(opts.out, prompt, "utf-8");
-          console.log(`Post-test prompt saved to ${opts.out}`);
         } else {
           console.log(prompt);
         }

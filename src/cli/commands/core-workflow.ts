@@ -59,9 +59,10 @@ export function setupCoreWorkflowCommands(program: Command) {
         };
 
         console.log("=== CTDD PROJECT STATUS ===");
-        console.log(`Commit ID: ${commitId}`);
-        console.log(`Focus Card: ${spec.focus_card.focus_card_id} - ${spec.focus_card.title}`);
+        console.log(`Commit: ${commitId}`);
+        console.log(`Title: ${spec.focus_card.title}`);
         console.log(`Goal: ${spec.focus_card.goal}`);
+        console.log(`History entries: ${state.history?.length || 0}`);
 
         if (opts.verbose) {
           console.log("\n=== PROJECT HEALTH CHECK ===");
