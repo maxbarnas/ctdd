@@ -2,35 +2,68 @@
 
 This file provides guidance to Claude Code when working with this CTDD project.
 
-## CTDD Bootstrap Methodology (CRITICAL - READ FIRST)
+## CTDD Unified Methodology (CRITICAL - READ FIRST)
 
-**CTDD (Context Test-Driven Development) follows a bootstrap principle: "tool helps build tool"**
+**CTDD (Context Test-Driven Development) Purpose**: Preserve context and progress across Claude sessions while accelerating development through bootstrap methodology.
 
-### Core Principles
+### Core Principles (Synthesized from Bootstrap Success + Original CTDD)
 
-1. **Bootstrap Approach**: Every feature you build should help build the next feature faster
-   - Phase 0: Emergency quick wins (50%+ overhead reduction in hours, not days)
-   - Progressive enhancement: Each phase accelerates the next
-   - Tool-assisted development: Build commands that help implement commands
+1. **Context Preservation** (CRITICAL):
+   - **Session State Management**: `.ctdd/session-state.json` is single source of truth
+   - **Token Efficiency**: Avoid duplicate documentation, optimize for resumption
+   - **Evidence Standards**: Concrete proof required for PASS/FAIL with verification commands
+   - **Resumption Test**: Success = seamless project continuation across context windows
 
-2. **Value Over Technical Purity**:
+2. **Bootstrap Acceleration**:
+   - **"Tool Helps Build Tool"**: Every feature should accelerate building the next feature
+   - **Phase 0 Emergency Relief**: Immediate 50%+ overhead reduction in hours, not days
+   - **Progressive Enhancement**: Each phase uses tools from previous phases
+   - **Measurable Time Savings**: Manual vs tool-assisted approach comparison
+
+3. **Value-First Development**:
    - **High-impact, low-effort** features first
    - **Working solution today > perfect solution someday**
-   - Measure success in **time saved**, not just technical metrics
-   - Every feature must answer: "Does this help build the next feature?"
+   - **Evidence-based validation**: Tools must prove their own value
+   - **User experience over technical complexity**
 
-3. **Contracts Must Include**:
-   - **Focus Card** with versioned ID (FC-XXX-001)
-   - **Invariants** emphasizing velocity increase (I1: Development velocity must increase)
-   - **Phase 0** for immediate relief (emergency quick wins)
-   - **Time measurements** comparing manual vs tool-assisted approach
-   - **Self-validation** mechanisms (tools check their own progress)
+4. **CTDD Contract Structure**:
+   - **Focus Card**: FC-ID, Goal, Deliverables, Constraints, Non-goals
+   - **Invariants**: I1-IX emphasizing velocity increase and backward compatibility
+   - **CUTs**: AT1-ATX with testable evidence and verification commands
+   - **Session State Updates**: Document progress, insights, and resumption instructions
 
-4. **Success Metrics**:
-   - **Manual overhead reduction**: Target 80%+ reduction
-   - **Development velocity**: Must increase with each phase
-   - **Immediate value**: Each phase delivers value within hours
-   - **Bootstrap validation**: Tools must help build themselves
+### CTDD Unified Workflow
+
+1. **Pre-Check** (Before Implementation):
+   - State which invariants currently hold (I1: ✅/❌)
+   - Identify target CUTs for this session (AT1, AT3)
+   - Update TodoWrite with planned actions
+   - Verify session-state.json reflects current status
+
+2. **Implementation** (Tool-Assisted Development):
+   - Reference AT/I IDs in all changes
+   - Use Phase 0 tools to accelerate Phase 1+ work
+   - Collect concrete evidence for each CUT
+   - Update todos as work progresses
+
+3. **Post-Check** (After Implementation):
+   - Report PASS/FAIL with specific evidence for each targeted CUT
+   - Include verification commands (npm test, ctdd validate, etc.)
+   - Update session-state.json with progress and insights
+   - Document resumption instructions and next actions
+
+4. **Session State Management** (CRITICAL for Context Preservation):
+   ```json
+   {
+     "current_phase": "Current phase description",
+     "completed_acceptance_criteria": ["AT001", "AT002"],
+     "file_changes": ["Brief description of key changes"],
+     "critical_insights": ["Key learnings that affect future work"],
+     "next_actions": ["Specific next steps"],
+     "verification_commands": ["Commands to verify current state"],
+     "resumption_context": "What new Claude instance needs to know"
+   }
+   ```
 
 ### Contract Structure Template
 

@@ -2,61 +2,97 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## CTDD Bootstrap Methodology (CRITICAL - READ FIRST)
+## CTDD Unified Methodology (CRITICAL - READ FIRST)
 
-**CTDD (Context Test-Driven Development) follows a bootstrap principle: "tool helps build tool"**
+**CTDD (Context Test-Driven Development) Purpose**: Preserve context and progress across Claude sessions while accelerating development through bootstrap methodology.
 
-### Core Principles
+### Core Principles (Synthesized from Bootstrap Success + Original CTDD)
 
-1. **Bootstrap Approach**: Every feature you build should help build the next feature faster
-   - Phase 0: Emergency quick wins (50%+ overhead reduction in hours, not days)
-   - Progressive enhancement: Each phase accelerates the next
-   - Tool-assisted development: Build commands that help implement commands
+1. **Context Preservation** (CRITICAL):
+   - **Session State Management**: `.ctdd/session-state.json` is single source of truth
+   - **Token Efficiency**: Avoid duplicate documentation, optimize for resumption
+   - **Evidence Standards**: Concrete proof required for PASS/FAIL with verification commands
+   - **Resumption Test**: Success = seamless project continuation across context windows
 
-2. **Value Over Technical Purity**:
+2. **Bootstrap Acceleration**:
+   - **"Tool Helps Build Tool"**: Every feature should accelerate building the next feature
+   - **Phase 0 Emergency Relief**: Immediate 50%+ overhead reduction in hours, not days
+   - **Progressive Enhancement**: Each phase uses tools from previous phases
+   - **Measurable Time Savings**: Manual vs tool-assisted approach comparison
+
+3. **Value-First Development**:
    - **High-impact, low-effort** features first
    - **Working solution today > perfect solution someday**
-   - Measure success in **time saved**, not just technical metrics
-   - Every feature must answer: "Does this help build the next feature?"
+   - **Evidence-based validation**: Tools must prove their own value
+   - **User experience over technical complexity**
 
-3. **Contracts Must Include**:
-   - **Focus Card** with versioned ID (FC-XXX-001)
-   - **Invariants** emphasizing velocity increase (I1: Development velocity must increase)
-   - **Phase 0** for immediate relief (emergency quick wins)
-   - **Time measurements** comparing manual vs tool-assisted approach
-   - **Self-validation** mechanisms (tools check their own progress)
+4. **CTDD Contract Structure**:
+   - **Focus Card**: FC-ID, Goal, Deliverables, Constraints, Non-goals
+   - **Invariants**: I1-IX emphasizing velocity increase and backward compatibility
+   - **CUTs**: AT1-ATX with testable evidence and verification commands
+   - **Session State Updates**: Document progress, insights, and resumption instructions
 
-4. **Success Metrics**:
-   - **Manual overhead reduction**: Target 80%+ reduction
-   - **Development velocity**: Must increase with each phase
-   - **Immediate value**: Each phase delivers value within hours
-   - **Bootstrap validation**: Tools must help build themselves
+### CTDD Unified Workflow
+
+1. **Pre-Check** (Before Implementation):
+   - State which invariants currently hold (I1: ✅/❌)
+   - Identify target CUTs for this session (AT1, AT3)
+   - Update TodoWrite with planned actions
+   - Verify session-state.json reflects current status
+
+2. **Implementation** (Tool-Assisted Development):
+   - Reference AT/I IDs in all changes
+   - Use Phase 0 tools to accelerate Phase 1+ work
+   - Collect concrete evidence for each CUT
+   - Update todos as work progresses
+
+3. **Post-Check** (After Implementation):
+   - Report PASS/FAIL with specific evidence for each targeted CUT
+   - Include verification commands (npm test, ctdd validate, etc.)
+   - Update session-state.json with progress and insights
+   - Document resumption instructions and next actions
+
+4. **Session State Management** (CRITICAL for Context Preservation):
+   ```json
+   {
+     "current_phase": "Phase 1: Tool-Assisted Splitting",
+     "completed_acceptance_criteria": ["AT001", "AT002", "AT003", "AT004"],
+     "file_changes": ["src/index.ts - added 4 Phase 0 commands"],
+     "critical_insights": ["Bootstrap methodology works - 99% time reduction achieved"],
+     "next_actions": ["Implement ctdd split-file using Phase 0 tools"],
+     "verification_commands": ["npm test", "ctdd analyze-sloc", "ctdd suggest-splits"],
+     "resumption_context": "Phase 0 complete, tools ready for Phase 1 implementation"
+   }
+   ```
 
 ### Contract Structure Template
 
 ```markdown
 ## Focus Card (FC-FEATURE-001)
-- **FC-ID**: FC-FEATURE-001 (versioned)
-- **Goal**: [Include "tool-assisted" and efficiency focus]
-- **Deliverables**: [Tools and automation, not just features]
-- **Constraints**: [Each phase must accelerate the next]
-- **Non-goals**: [No complex automation before quick wins]
+- **FC-ID**: FC-FEATURE-001 (versioned for resumption tracking)
+- **Goal**: [Tool-assisted approach with measurable efficiency gains]
+- **Deliverables**: [Tools first, then features using tools]
+- **Constraints**: [Each phase must accelerate next + preserve backward compatibility]
+- **Non-goals**: [Manual work, complex automation before quick wins]
 
-## Invariants
-- **I1**: Development velocity must increase with each phase
-- **I2**: Manual overhead must decrease by 80%+
-- **I3**: Each tool feature provides immediate value
-- **I4**: Bootstrap principle: tools help build tools
+## Invariants (Always Check Before/After)
+- **I1**: Development velocity must increase with each phase (measured)
+- **I2**: All existing functionality preserved (76/76 tests passing)
+- **I3**: Manual overhead must decrease by 80%+ (timed evidence)
+- **I4**: Bootstrap principle: tools help build tools (demonstrable)
+- **I5**: Context preservation: seamless resumption across sessions
 
-## Phase 0: Emergency Quick Wins (Day 1)
-[Immediate 50%+ overhead reduction]
+## Phase 0: Emergency Quick Wins (Hours, not days)
+[Build tools that deliver immediate value and accelerate next phases]
 
-## Phase 1: Tool-Assisted Implementation
-[Use Phase 0 tools to build Phase 1 faster]
+## CUTs (Context Unit Tests) with Evidence
+- **AT001**: [Specific, testable criteria with verification command]
+- **AT002**: [Include expected time savings: manual vs tool-assisted]
 
-## Success Metrics
-- Manual approach: X hours
-- Tool-assisted: Y hours (80%+ reduction)
+## Success Metrics & Evidence
+- Manual approach: X hours → Tool-assisted: Y hours (Z% reduction)
+- Verification commands: [npm test, custom validation commands]
+- Resumption test: Can new Claude instance continue work seamlessly?
 ```
 
 ### Proven Patterns (From Successful CTDD Contracts)
