@@ -104,10 +104,13 @@
         "AT006",
         "AT007",
         "AT008",
-        "AT009"
+        "AT009",
+        "AT010",
+        "AT011",
+        "AT012"
       ],
       "in_progress": [],
-      "pending": ["AT010", "AT011", "AT012", "AT013", "AT014"],
+      "pending": ["AT013", "AT014"],
       "major_breakthrough_achieved": "Post-Phase Insight Harvesting + Compound Acceleration validated"
     },
     "file_splitting_phase_0_achievements": {
