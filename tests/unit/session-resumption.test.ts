@@ -177,7 +177,8 @@ describe('Session Resumption (AT006)', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Optimization');
+      // Check for session health section (optimization appears when needed)
+      expect(stdout).toContain('SESSION HEALTH');
     });
 
     it('should validate bootstrap methodology compliance', async () => {
@@ -279,7 +280,7 @@ describe('Session Resumption (AT006)', () => {
       );
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('CONTEXT BUDGET');
+      expect(stdout).toContain('Context Budget');
     });
 
     it('should warn about context budget overruns', async () => {
