@@ -52,6 +52,231 @@ Recently applied to 41 test failures:
 
 ---
 
+## 📖 Complete Example: Refactoring a Monolithic File
+
+**Scenario**: You have a 1,847-line `src/api-handler.ts` file handling user authentication, payments, orders, and notifications. It's become unmaintainable with high complexity. Traditional refactoring would take 2-3 weeks. **CTDD achieves this in 2-3 days with 95%+ reduction.**
+
+### Step 1: Problem Discovery
+
+First, identify what needs attention using evidence-based risk assessment:
+
+```bash
+$ cd your-project
+$ npx ctdd init
+$ npx ctdd test-intel risk-assess
+
+🔍 CTDD Evidence-Based Risk Assessment
+========================================
+
+Analyzed 34 TypeScript files (8,429 total lines)
+
+High Risk Files:
+  🔴 src/api-handler.ts: 1,847 lines (Risk Score: 512)
+     Complexity: Very High | Error Handling: Poor | Coupling: High
+     Issues: 47 functions, 8 nested callbacks, inconsistent error handling
+     Recommendation: Ultimate challenge - apply full CTDD methodology
+
+  🟡 src/database.ts: 392 lines (Risk Score: 98)
+     Complexity: Medium | Error Handling: Good | Coupling: Low
+     Recommendation: Monitor, refactor if needed
+
+Analysis complete in 2.3 seconds (vs 45+ minutes manual review)
+Prioritization: Start with src/api-handler.ts for maximum impact
+```
+
+**Evidence-based decision**: Risk score 512 (10x over threshold) - this is your ultimate challenge.
+
+### Step 2: Create Focus Card Contract
+
+Create `contracts/API_HANDLER_REFACTORING.md`:
+
+```markdown
+## Focus Card (FC-API-SPLIT-001)
+**Goal**: Refactor monolithic API handler into maintainable modules using bootstrap methodology
+
+**Deliverables**:
+- src/api/auth.ts (authentication logic)
+- src/api/payments.ts (payment processing)
+- src/api/orders.ts (order management)
+- src/api/notifications.ts (notification system)
+
+**Constraints**: All 89 existing tests must pass, <5% performance regression
+
+## Invariants
+- I1: All 89 tests passing (0 regressions)
+- I2: API response times within 5% of baseline
+- I3: Zero breaking changes to public API
+
+## Phase 0: Build Analysis Tools (2-3 hours)
+- AT001: Dependency analysis tool identifies module boundaries
+- AT002: Complexity analyzer finds high-risk functions
+- AT003: Test coverage mapper shows what needs testing
+
+## Phase 1: Tool-Assisted Splitting (4-6 hours)
+- AT004: Authentication module extracted with tests passing
+- AT005: Payment module extracted with tests passing
+[... more acceptance criteria ...]
+```
+
+### Step 3: Phase 0 - Build Analysis Tools
+
+Use CTDD's bootstrap principle: build tools first, then use them to accelerate refactoring:
+
+```bash
+$ npx ctdd check-at AT001
+
+🔍 Validating AT001: Dependency analysis tool
+⏱️  Creating analysis tool...
+
+✅ AT001: PASS
+Evidence: Tool analyzes 1,847 lines in 0.8s
+Output: Found 4 clear module boundaries (auth, payments, orders, notifications)
+Manual analysis would take: 2-3 hours
+Tool-assisted time: <1 second (99.9% reduction)
+```
+
+**Bootstrap acceleration**: Phase 0 tools make Phase 1 work 80%+ faster.
+
+### Step 4: Context Loss Happens
+
+You're in the middle of Phase 1 when your Claude context resets. Traditional approach: spend 10-15 minutes re-reading files, checking status, figuring out what's next.
+
+**CTDD approach - Zero-Wander Resumption**:
+
+```bash
+$ npx ctdd session resume --verbose
+
+═══════════════════════════════════════════════════════════════
+🚀 CTDD INSTANT RESUMPTION - Zero-Wander Context Recovery
+═══════════════════════════════════════════════════════════════
+
+📊 PROJECT STATUS
+─────────────────
+Focus: FC-API-SPLIT-001: Refactor monolithic API handler
+Progress: 7/15 ATs complete (47%)
+Build Status: ✅ All 89 tests passing
+Performance: ✅ Within 2% of baseline
+
+✅ COMPLETED (7 ATs)
+  AT001-AT003: Phase 0 tools built
+  AT004-AT007: Auth + Payment modules extracted
+
+🔄 IN PROGRESS (1 AT)
+  AT008: Order module extraction (60% complete)
+
+⏳ PENDING (7 ATs)
+  AT009-AT015: Notifications + integration + validation
+
+💡 CRITICAL INSIGHTS
+─────────────────────
+• Phase 0 tools reduced analysis from 3 hours → 3 seconds (99.9%)
+• Test pass rate: 89/89 (100%) throughout refactoring
+• Architecture emerging: 4-module clean separation
+• Original file: 1,847 lines → Currently: 423 lines (77% reduction so far)
+
+🎯 IMMEDIATE NEXT ACTIONS
+──────────────────────────
+1. Complete AT008: Extract order management functions
+2. Run tests: npm test -- orders.test.ts
+3. Update session: npx ctdd update-session --complete AT008
+4. Validate: npx ctdd check-at AT008
+
+📁 KEY FILES
+────────────
+  Working: src/api-handler.ts (423 lines remaining)
+  Extracted: src/api/auth.ts (287 lines)
+  Extracted: src/api/payments.ts (412 lines)
+  In Progress: src/api/orders.ts (drafting)
+
+⏱️  Resumption time: <30 seconds
+🎯 You're now productive. No file wandering needed.
+```
+
+**Result**: You know exactly where you are and what to do next. No context meandering.
+
+### Step 5: Complete Refactoring Using Tools
+
+Phase 1 work accelerates because Phase 0 tools automate the hard parts:
+
+```bash
+# Quick validation of all acceptance criteria
+$ npx ctdd check-at --all
+
+Validating 15 acceptance criteria...
+✅ AT001-AT007: PASS (Phase 0 + completed work)
+🔄 AT008: IN PROGRESS (60% complete)
+⏳ AT009-AT015: PENDING
+
+Critical: 89/89 tests passing
+Performance: 2% faster than baseline (optimization bonus!)
+
+# Update session when AT008 completes
+$ npx ctdd update-session --complete AT008 --insight "Order module clean separation achieved"
+
+✅ Session updated
+Progress: 8/15 ATs complete (53%)
+```
+
+### Step 6: Final Validation & Evidence
+
+After completing all 15 ATs:
+
+```bash
+$ npx ctdd check-at --all --deep
+
+🔍 Deep Validation: All Acceptance Criteria
+============================================
+
+✅ Phase 0 (AT001-AT003): PASS
+   Evidence: All analysis tools functional
+
+✅ Phase 1 (AT004-AT012): PASS
+   Evidence: 4 modules extracted, all tests passing
+
+✅ Phase 2 (AT013-AT015): PASS
+   Evidence: Integration complete, performance improved
+
+📊 Final Results:
+   Original: 1,847 lines (monolithic)
+   After:    src/api-handler.ts: 47 lines (entry point only)
+            src/api/auth.ts: 287 lines
+            src/api/payments.ts: 412 lines
+            src/api/orders.ts: 358 lines
+            src/api/notifications.ts: 294 lines
+
+✅ Reduction: 1,847 → 47 core lines (97.5% reduction in main file)
+✅ Tests: 89/89 passing (100%)
+✅ Performance: 3% improvement (bonus optimization)
+✅ Architecture: Clean module boundaries with single responsibilities
+
+Time Investment:
+  Traditional refactoring: 2-3 weeks (80-120 hours)
+  CTDD methodology: 2-3 days (16-24 hours)
+  Overhead reduction: 80%+ (with higher quality results)
+```
+
+### Step 7: Contract Graduation
+
+Archive the completed contract and document learnings:
+
+```bash
+# Archive completed contract
+$ mkdir -p contracts/archive
+$ mv contracts/API_HANDLER_REFACTORING.md contracts/archive/
+
+# Commit and document
+$ git add .
+$ git commit -m "feat: API Handler Refactoring COMPLETE - 97.5% reduction achieved"
+```
+
+**Methodology Insights Captured**:
+- Bootstrap principle proven: tools accelerated work by 80%+
+- Evidence-based approach prevented 15+ hours of unnecessary work
+- Zero-wander resumption eliminated context loss overhead
+- Ready to apply same methodology to next challenge
+
+---
+
 ## Installation
 
 ```bash
