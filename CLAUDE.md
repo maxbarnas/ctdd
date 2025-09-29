@@ -117,6 +117,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Result: 15 hours → 5.5 hours (63% reduction)
    - Lesson: Automation accelerates itself
 
+4. **"Complete the Loop" Principle (Phase 1 Discovery)**:
+   - Problem: Built extraction tools but original file unchanged (1595 lines)
+   - Insight: Tool-assisted work has Extract + Integrate phases
+   - Solution: Use own tools to validate original problem solved
+   - Result: Bootstrap methodology improved through self-application
+   - Lesson: Build tools to solve problems, not just to build tools
+
 ### Anti-Patterns to Avoid
 
 1. ❌ **Waterfall approach**: Sequential phases without feedback loops
@@ -124,6 +131,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. ❌ **Deferred benefits**: All value at the end vs progressive delivery
 4. ❌ **External validation only**: Not building self-checking mechanisms
 5. ❌ **Complex automation first**: Over-engineering before quick wins
+6. ❌ **Incomplete loops**: Building tools without completing the original problem
+   - Example: Extract code but don't integrate/reduce original file
+   - Solution: "Complete the Loop" - use your tools to solve your actual problem
 
 ### When Creating CTDD Contracts
 

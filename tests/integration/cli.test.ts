@@ -35,8 +35,8 @@ describe('CLI Integration Tests', () => {
       });
 
       expect(stderr).toBe('');
-      expect(stdout).toContain('Initialized .ctdd/');
-      expect(stdout).toContain('Commit: CTDD:FC-001@');
+      expect(stdout).toContain('✅ Project initialized with commit ID:');
+      expect(stdout).toContain('CTDD:FC-001@');
 
       // Verify files were created
       const specContent = await testEnv.readFile('.ctdd/spec.json');

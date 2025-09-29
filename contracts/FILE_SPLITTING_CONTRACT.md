@@ -69,10 +69,28 @@ ctdd validate-split --dry-run         # Check if split is safe
 - **AT008**: Split src/core.ts using tools built for index.ts (bootstrap principle)
 - **AT009**: Measure time saved: manual split (3 hours) vs tool-assisted (15 minutes)
 
+### PHASE 1 INSIGHT: Two-Phase Splitting Methodology
+
+**Critical Learning from Phase 1**: File splitting is actually **Extract + Integrate**:
+
+**Phase A - Extract** (✅ COMPLETED):
+- Create new modules with extracted functionality
+- Generate barrel exports for API compatibility
+- Verify extracted modules compile and work independently
+
+**Phase B - Integrate** (🚧 IN PROGRESS):
+- Replace original code with imports from new modules
+- Remove duplicated code from original file
+- Verify original file functionality with reduced SLOC
+- Measure actual file size reduction
+
+**"Complete the Loop" Principle**: Tool-assisted development must solve the original problem, not just build infrastructure.
+
 ### Progressive Enhancement
 - Use Phase 0 tools to analyze files before splitting
-- Each split validates itself using AT007 verification
+- Each split validates both extraction AND integration using AT007 verification
 - Tools learn from each split to improve suggestions
+- **New**: Track original file reduction, not just new file creation
 
 ### Target Splits (Tool-Assisted)
 

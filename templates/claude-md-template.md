@@ -99,6 +99,9 @@ This file provides guidance to Claude Code when working with this CTDD project.
 3. ❌ **Deferred benefits**: All value at the end vs progressive delivery
 4. ❌ **External validation only**: Not building self-checking mechanisms
 5. ❌ **Complex automation first**: Over-engineering before quick wins
+6. ❌ **Incomplete loops**: Building tools without completing the original problem
+   - Example: Extract code but don't integrate/reduce original file
+   - Solution: "Complete the Loop" - use your tools to solve your actual problem
 
 ### When Creating CTDD Contracts
 

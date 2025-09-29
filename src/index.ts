@@ -19,6 +19,7 @@ import {
   PluginInfoForBrief,
   logError
 } from "./core.js";
+import { executeInitCommand } from "./cli/init.js";
 import {
   runPlugins,
   checksToPostChecks,
@@ -59,72 +60,10 @@ For more help: ctdd help <command>`)
     .option("--template <name>", "Use a specific template (e.g., minimal, csv-parser-example)")
     .action(async (opts) => {
       try {
-        const projectDir = process.cwd();
-
-        if (opts.full) {
-          console.log("🚀 Initializing complete CTDD project setup...");
-          console.log("");
-
-          // Create basic structure first
-          await ensureProjectDirs(projectDir);
-          const { commitId } = await initProject(projectDir, opts.template);
-
-          // Create enhanced CLAUDE.md with bootstrap insights
-          const { writeFile, mkdir } = await import("fs/promises");
-          const { existsSync } = await import("fs");
-
-          // Create contracts directory
-          if (!existsSync("contracts")) {
-            await mkdir("contracts", { recursive: true });
-          }
-
-          // Create docs directory
-          if (!existsSync("docs")) {
-            await mkdir("docs", { recursive: true });
-          }
-
-          // Generate CLAUDE.md with current best practices from template
-          const claudeMdContent = await loadMarkdownTemplate('claude-md-template');
-          await writeFile("CLAUDE.md", claudeMdContent, "utf-8");
-          console.log("✅ Created CLAUDE.md with bootstrap insights");
-
-          // Create session state template with dynamic values
-          const templateVariables = {
-            DATE: new Date().toISOString().split('T')[0],
-            TIMESTAMP: new Date().toISOString()
-          };
-          const sessionStateTemplate = await loadJsonTemplate('session-state-template', templateVariables);
-
-          await writeFile(".ctdd/session-state.json", JSON.stringify(sessionStateTemplate, null, 2), "utf-8");
-          console.log("✅ Created session-state.json template");
-
-          // Create archive directory
-          await mkdir(".ctdd/archive", { recursive: true });
-          console.log("✅ Created context preservation archive structure");
-
-          console.log("");
-          console.log("📋 Complete CTDD project setup finished!");
-          console.log("Commit:", commitId);
-          console.log("");
-          console.log("🎯 Next Steps:");
-          console.log("1. Define your Focus Card in .ctdd/spec.json");
-          console.log("2. Add your acceptance criteria (CUTs) to spec.json");
-          console.log("3. Create .ctdd/validation/ scripts for custom AT validation");
-          console.log("4. Run 'ctdd phase-status' to see project structure");
-          console.log("5. Use 'ctdd check-at --all' to validate progress");
-          console.log("6. See CLAUDE.md for customization examples");
-
-        } else {
-          // Standard init
-          await ensureProjectDirs(projectDir);
-          const { commitId } = await initProject(projectDir, opts.template);
-          console.log("Initialized .ctdd/");
-          console.log("Commit:", commitId);
-          console.log("💡 Use 'ctdd init --full' for complete project setup");
-          console.log("💡 Use 'ctdd init --template <name>' to choose a specific template");
-          console.log("   Available templates: minimal, generic-project, csv-parser-example");
+        const result = await executeInitCommand(opts);
+        if (result.commitId) {
+          console.log(`✅ Project initialized with commit ID: ${result.commitId}`);
         }
-
       } catch (e) {
         const { logError } = await import('./core.js');
         const { CTDDError, ErrorCodes } = await import('./errors.js');

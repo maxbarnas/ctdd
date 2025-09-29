@@ -33,8 +33,8 @@ describe('CTDD E2E Workflow Tests', () => {
         cwd: testEnv.tempDir
       });
 
-      expect(initOutput).toContain('Initialized .ctdd/');
-      const initialCommitMatch = initOutput.match(/Commit: (CTDD:[^@]+@[a-f0-9]{7})/);
+      expect(initOutput).toContain('✅ Project initialized with commit ID:');
+      const initialCommitMatch = initOutput.match(/(CTDD:[^@]+@[a-f0-9]{7})/);
       expect(initialCommitMatch).toBeTruthy();
       const initialCommitId = initialCommitMatch![1];
       expectValidCommitId(initialCommitId);
